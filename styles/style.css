@@ -96,6 +96,45 @@ nav a:hover{
   }
 }
 
+.contactbtn{
+  position: absolute;
+  top: 85%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px 30px;
+  border: 2px solid #21f379;
+  
+  display: inline-block;
+  text-decoration: none;
+  color: #21f379;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: 0.5s;
+  overflow: hidden;
+}
+
+.contactbtn:hover{
+  color: #111;
+
+}
+.contactbtn span {
+  position: absolute;
+  display: block;
+  width: 0px;
+  height: 0px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #21f379;
+  transition: width 0.5s, height 0.5s;
+  z-index: -1;
+}
+
+.contactbtn:hover span{
+  width: 300px;
+  height: 300px;
+}
+
+
 .pfp{
   border-radius: 50%;
   position: absolute;
@@ -161,40 +200,3 @@ p {
   line-height: 1.6;
 }
 
-.contactbtn{
-  position: absolute;
-  top: 85%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 10px 30px;
-  border: 2px solid #21f379;
-  
-  display: inline-block;
-  text-decoration: none;
-  color: #21f379;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  transition: 0.5s;
-  overflow: hidden;
-}
-
-.contactbtn:hover{
-  color: #111;
-
-}
-.contactbtn span {
-  position: absolute;
-  display: block;
-  width: 0px;
-  height: 0px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: #21f379;
-  transition: width 0.5s, height 0.5s;
-  z-index: -1;
-}
-
-.contactbtn:hover span{
-  width: 300px;
-  height: 300px;
-}
