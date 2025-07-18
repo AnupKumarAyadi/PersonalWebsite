@@ -191,8 +191,7 @@ nav a:hover{
   font-size: 3rem;
   color: var(--darkMint);
   background-color: black;
-  padding-top: 3rem;
-  padding-bottom: 3rem;
+  padding-top: 1rem;
   text-align: center;
 }
 
@@ -216,7 +215,8 @@ p {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: calc(100vh-7rem);
+    margin-top: -2rem;
+    height: 100vh;
     background-color: black;
 }
 
@@ -228,7 +228,7 @@ p {
 
 .card-list .card-item{
     color: #fff;
-    width:auto;
+    width: auto;
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -247,7 +247,9 @@ p {
     border: 3px solid #fff;
     padding: 4px;
 }
-
+.card-list .card-item .username{
+    text-align: center;
+}
 .card-list .card-item .user_profession{
     font-size: 1.15rem;
     color: #e3e3e3;
