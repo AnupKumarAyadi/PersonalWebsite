@@ -236,7 +236,7 @@ p {
     border-radius: 8px;
     backdrop-filter: blur(30px);
     background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    
 }
 
 .card-list .card-item .user-image{
