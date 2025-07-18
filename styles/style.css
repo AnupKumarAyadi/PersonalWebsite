@@ -14,6 +14,7 @@ body{
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: var(--black);
   scroll-behavior: smooth;
+  color: white;
 }
 
 nav{
@@ -89,3 +90,49 @@ nav a:hover{
     width: 100%;
   }
 }
+
+.pfp{
+  border-radius: 50%;
+  width: 250px;
+  box-shadow: 0 0 20px rgba(152, 255, 152, 0.5);
+  transition: transform 0.4s ease;
+}
+
+
+.pfp-holder{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.pfp-text{
+  padding-top: 2rem;
+}
+
+h1 {
+  font-size: 3rem;
+  color: var(--mint);
+}
+
+h2 {
+  font-size: 2.5rem;
+  color: var(--gold);
+}
+
+h3 {
+  font-size: 1.75rem;
+  color: var(--mint);
+}
+
+p {
+  font-size: 1.2rem;
+  max-width: 800px;
+  line-height: 1.6;
+}
+
+
+
