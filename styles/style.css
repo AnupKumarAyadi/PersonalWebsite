@@ -190,7 +190,8 @@ nav a:hover{
  #simul {
   font-size: 3rem;
   color: var(--darkMint);
-  padding-top: 1rem;
+  background-color: black;
+  padding-top: 3rem;
   padding-bottom: 3rem;
   text-align: center;
 }
@@ -214,9 +215,8 @@ p {
 .second-page{
     display: flex;
     align-items: center;
-    flex-direction: column;
     justify-content: center;
-    min-height: 100vh;
+    height: calc(100vh-7rem);
     background-color: black;
 }
 
