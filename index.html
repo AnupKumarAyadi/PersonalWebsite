@@ -27,18 +27,18 @@
       <img src="./images/pfp2copy.jpg" class="pfp" width="250px" height="250px">
       <h2 class="welcome_text">Hi! I'm <span>Anup Kumar Ayadi</span></h2>
       <p class="welcome_followup">I'm passionate about physics, coding, and community service.</p>
-      <a href="#" class="contact_btn"><span></span>Contact Me</a>
+      <a href="#" class="contactbtn"><span></span>Contact Me</a>
 
       <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
       <script>
         $(document).ready(function(e){
-          $('.contact_btn').on('mouseenter', function(e){
+          $('.contactbtn').on('mouseenter', function(e){
             x = e.pageX - $(this).offset().left;
             y = e.pageY - $(this).offset().top;
             $(this).find('span').css({top:y, left:x})
           })
           
-          $('.contact_btn').on('mouseout', function(e){
+          $('.contactbtn').on('mouseout', function(e){
             x = e.pageX - $(this).offset().left;
             y = e.pageY - $(this).offset().top;
             $(this).find('span').css({top:y, left:x})

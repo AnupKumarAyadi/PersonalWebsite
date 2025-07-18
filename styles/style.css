@@ -161,7 +161,7 @@ p {
   line-height: 1.6;
 }
 
-.contact_btn{
+.contactbtn{
   position: absolute;
   top: 85%;
   left: 50%;
@@ -178,11 +178,11 @@ p {
   overflow: hidden;
 }
 
-.contact_btn:hover{
+.contactbtn:hover{
   color: #111;
 
 }
-.contact_btn span {
+.contactbtn span {
   position: absolute;
   display: block;
   width: 0px;
@@ -194,7 +194,7 @@ p {
   z-index: -1;
 }
 
-.contact_btn:hover span{
+.contactbtn:hover span{
   width: 300px;
   height: 300px;
 }
