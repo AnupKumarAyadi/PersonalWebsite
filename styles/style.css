@@ -17,7 +17,7 @@ body{
 }
 
 #particles-js{
-  height: 100vh;
+  height: calc(100vh - 55px);
   width: 100vw;
   background: var(--black);
 }
@@ -123,7 +123,7 @@ nav a:hover{
   text-align: center;
   width: 100%;
 }
-@media(max-width: 508px){
+@media(max-width: 492px){
   .welcome_followup{
     top: 80%;
   }
@@ -138,19 +138,6 @@ nav a:hover{
   .welcome_followup{
     top: 70%;
   }
-}
-.pfp-holder{
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  text-align: center;
-}
-
-.pfp-text{
-  padding-top: 2rem;
 }
 
 h1 {
