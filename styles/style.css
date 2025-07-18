@@ -31,7 +31,7 @@ nav ul{
   width: 100%;
   list-style: none;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
 }
 
@@ -161,5 +161,40 @@ p {
   line-height: 1.6;
 }
 
+.contact_btn{
+  position: absolute;
+  top: 85%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px 30px;
+  border: 2px solid #21f379;
+  
+  display: inline-block;
+  text-decoration: none;
+  color: #21f379;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: 0.5s;
+  overflow: hidden;
+}
 
+.contact_btn:hover{
+  color: #111;
 
+}
+.contact_btn span {
+  position: absolute;
+  display: block;
+  width: 0px;
+  height: 0px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #21f379;
+  transition: width 0.5s, height 0.5s;
+  z-index: -1;
+}
+
+.contact_btn:hover span{
+  width: 300px;
+  height: 300px;
+}

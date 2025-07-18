@@ -15,12 +15,10 @@
         <li onclick=hideSidebar()><a href="#"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></a></li>
         <li><a href="#">Physics Simulations</a></li>
         <li><a href="#">Experiences</a></li>
-        <li><a href="#">Contact Me</a></li>
       </ul>
       <ul>
         <li class="hideOnMobile"><a href="#">Physics Simulations</a></li>
         <li class="hideOnMobile"><a href="#">Experiences</a></li>
-        <li class="hideOnMobile"><a href="#">Contact Me</a></li>
         <li class="menu-button" onClick=showSidebar()><a href="#"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/></svg></a></li>
       </ul>
     </nav>
@@ -29,12 +27,32 @@
       <img src="./images/pfp2copy.jpg" class="pfp" width="250px" height="250px">
       <h2 class="welcome_text">Hi! I'm <span>Anup Kumar Ayadi</span></h2>
       <p class="welcome_followup">I'm passionate about physics, coding, and community service.</p>
+      <a href="#" class="contact_btn"><span></span>Contact Me</a>
+
+      <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+      <script>
+        $(document).ready(function(e){
+          $('.contact_btn').on('mouseenter', function(e){
+            x = e.pageX - $(this).offset().left;
+            y = e.pageY - $(this).offset().top;
+            $(this).find('span').css({top:y, left:x})
+          })
+          
+          $('.contact_btn').on('mouseout', function(e){
+            x = e.pageX - $(this).offset().left;
+            y = e.pageY - $(this).offset().top;
+            $(this).find('span').css({top:y, left:x})
+          })
+        })
+      </script>
     </div>
 
     
     <script src="./scripts/particles.js"></script>
     <script src="./scripts/app.js"></script>
-
+    <div height="100vh">
+      <h1>HELLO</h1>
+    </div>
     <script>
       function showSidebar(){
         const sidebar = document.querySelector('.sidebar')
