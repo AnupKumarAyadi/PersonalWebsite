@@ -9,6 +9,7 @@
   </head>
   
   <body>
+    
     <nav>
       <ul class="sidebar">
         <li onclick=hideSidebar()><a href="#"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></a></li>
@@ -24,17 +25,16 @@
       </ul>
     </nav>
 
-  
-    <div class="pfp-holder">
-      <div>
-        <img src="./images/pfp2copy.jpg" class="pfp" width="250px" height="250px">
-      </div>
-      <div class="pfp-text">
-        <h2>Hi! I'm <span>Anup Kumar Ayadi</span></h2>
-        <p>I'm passionate about physics, coding, and community service.</p>
-      </div>
+    <div id="particles-js">      
+      <img src="./images/pfp2copy.jpg" class="pfp" width="250px" height="250px">
+      <h2 class="welcome_text">Hi! I'm <span>Anup Kumar Ayadi</span></h2>
+      <p class="welcome_followup">I'm passionate about physics, coding, and community service.</p>
     </div>
+
     
+    <script src="./scripts/particles.js"></script>
+    <script src="./scripts/app.js"></script>
+
     <script>
       function showSidebar(){
         const sidebar = document.querySelector('.sidebar')
