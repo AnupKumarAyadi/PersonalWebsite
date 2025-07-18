@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./styles/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
-    <script src="./scripts/carousel.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <title>Anup Kumar Ayadi</title>
   </head>
   
@@ -52,18 +51,58 @@
     
     <script src="./scripts/particles.js"></script>
     <script src="./scripts/app.js"></script>
+    
+    
+    
+    
     <div class="second-page">
-      <h1 id="simul">My Coding Projects</h1>
-      <div class="wrapper">
-        <i class="fa-solid fa-angle-left"></i>
-        <div class="carousel">
-          <img src="./images/projectImages/1.jpg">
-          <img src="./images/projectImages/2.jpg">
-          <img src="./images/projectImages/3.jpg">
-          <img src="./images/projectImages/4.jpg">
+      <h1 id="simul">My Projects</h1>
+      <div class="container swiper">
+        <div class="slider-wrapper">
+            <div class="card-list swiper-wrapper">
+                <div class="card-item swiper-slide">
+                    <img src="./1.jpg" class="user-image">
+                    <h2 class="username">Project 1</h2>
+                    <p class="user_profession">Hello hey!</p>
+                    <button class="message">
+                        Message
+                    </button>
+                </div>
+
+                <div class="card-item swiper-slide">
+                    <img src="./2.jpg" class="user-image">
+                    <h2 class="username">Project 1</h2>
+                    <p class="user_profession">Hello hey!</p>
+                    <button class="message">
+                        Message
+                    </button>
+                </div>
+
+                <div class="card-item swiper-slide">
+                    <img src="./3.jpg" class="user-image">
+                    <h2 class="username">Project 1</h2>
+                    <p class="user_profession">Hello hey!</p>
+                    <button class="message">
+                        Message
+                    </button>
+                </div>
+
+                <div class="card-item swiper-slide">
+                    <img src="./4.jpg" class="user-image">
+                    <h2 class="username">Project 1</h2>
+                    <p class="user_profession">Hello hey!</p>
+                    <button class="message">
+                        Message
+                    </button>
+                </div>
+            </div>
+            <div class="swiper-pagination"></div>
+            <div class="swiper-slide-button swiper-button-prev"></div>
+            <div class="swiper-slide-button swiper-button-next"></div>
         </div>
-        <i class="fa-solid fa-angle-right"></i>
       </div>
+      <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+      <script src="./scripts/slider.js"></script>
     </div> 
 
     <script>
