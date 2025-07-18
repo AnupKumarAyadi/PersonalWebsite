@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <script src="./scripts/carousel.js" defer></script>
     <title>Anup Kumar Ayadi</title>
   </head>
   
@@ -13,11 +15,11 @@
     <nav>
       <ul class="sidebar">
         <li onclick=hideSidebar()><a href="#"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></a></li>
-        <li><a href="#">Physics Simulations</a></li>
+        <li><a href="#simul">Physics Simulations</a></li>
         <li><a href="#">Experiences</a></li>
       </ul>
       <ul>
-        <li class="hideOnMobile"><a href="#">Physics Simulations</a></li>
+        <li class="hideOnMobile"><a href="#simul">Physics Simulations</a></li>
         <li class="hideOnMobile"><a href="#">Experiences</a></li>
         <li class="menu-button" onClick=showSidebar()><a href="#"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/></svg></a></li>
       </ul>
@@ -27,7 +29,7 @@
       <img src="./images/pfp2copy.jpg" class="pfp" width="250px" height="250px">
       <h2 class="welcome_text">Hi! I'm <span>Anup Kumar Ayadi</span></h2>
       <p class="welcome_followup">I'm passionate about physics, coding, and community service.</p>
-      <p><a href="#" class="contactbtn"><span></span>Contact Me</a></p>
+      <a href="#" class="contactbtn"><span></span>Contact Me</a>
 
       <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
       <script>
@@ -50,9 +52,20 @@
     
     <script src="./scripts/particles.js"></script>
     <script src="./scripts/app.js"></script>
-    <div height="100vh">
-      <h1>HELLO</h1>
-    </div>
+    <div class="second-page">
+      <h1 id="simul">My Coding Projects</h1>
+      <div class="wrapper">
+        <i class="fa-solid fa-angle-left"></i>
+        <div class="carousel">
+          <img src="./images/projectImages/1.jpg">
+          <img src="./images/projectImages/2.jpg">
+          <img src="./images/projectImages/3.jpg">
+          <img src="./images/projectImages/4.jpg">
+        </div>
+        <i class="fa-solid fa-angle-right"></i>
+      </div>
+    </div> 
+
     <script>
       function showSidebar(){
         const sidebar = document.querySelector('.sidebar')
