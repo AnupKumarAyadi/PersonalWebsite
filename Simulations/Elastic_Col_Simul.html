@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elastic Collision Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f9fafb;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            font-weight: 300;
+            color: #1f2937;
+            margin-bottom: 2rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+        }
+        
+        .track-container {
+            position: relative;
+            background: #f3f4f6;
+            height: 128px;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .wall {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #1f2937;
+        }
+        
+        .wall-left { left: 0; }
+        .wall-right { right: 0; }
+        
+        .block {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10%;
+            height: 64px;
+            border-radius: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            transition: left 0.05s linear;
+        }
+        
+        .block1 { background: #3b82f6; }
+        .block2 { background: #ef4444; }
+        
+        .track-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+            padding: 0 0.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        
+        .stat-card.blue { background: #eff6ff; }
+        .stat-card.red { background: #fef2f2; }
+        
+        .stat-card h3 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card.blue h3 { color: #1e40af; }
+        .stat-card.red h3 { color: #991b1b; }
+        
+        .stat-card p {
+            font-size: 0.875rem;
+            color: #4b5563;
+            margin: 0.25rem 0;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+        
+        .btn-primary {
+            background: #1f2937;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #374151;
+        }
+        
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+        
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+        
+        .control-group {
+            margin-bottom: 1rem;
+        }
+        
+        .control-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+        
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e5e7eb;
+            outline: none;
+        }
+        
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+        }
+        
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .chart-container {
+            margin-top: 1rem;
+            height: 250px;
+            position: relative;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background: white;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        
+        .conservation {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .conservation-row {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .conservation-row span:first-child {
+            color: #6b7280;
+        }
+        
+        .conservation-row span:last-child {
+            font-family: monospace;
+        }
+        
+        .conservation-note {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Elastic Collision Simulator</h1>
+        
+        <div class="grid">
+            <div class="left-column">
+                <div class="card">
+                    <div class="track-container">
+                        <div class="wall wall-left"></div>
+                        <div class="wall wall-right"></div>
+                        <div class="block block1" id="block1">1</div>
+                        <div class="block block2" id="block2">2</div>
+                    </div>
+                    
+                    <div class="track-labels">
+                        <span>0 m</span>
+                        <span>5 m</span>
+                        <span>10 m</span>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card blue">
+                            <h3>Block 1</h3>
+                            <p>Position: <span id="pos1">1.00</span> m</p>
+                            <p>Velocity: <span id="vel1">2.00</span> m/s</p>
+                            <p>KE: <span id="ke1">2.00</span> J</p>
+                            <p>Momentum: <span id="p1">2.00</span> kg·m/s</p>
+                        </div>
+                        
+                        <div class="stat-card red">
+                            <h3>Block 2</h3>
+                            <p>Position: <span id="pos2">8.00</span> m</p>
+                            <p>Velocity: <span id="vel2">0.00</span> m/s</p>
+                            <p>KE: <span id="ke2">0.00</span> J</p>
+                            <p>Momentum: <span id="p2">0.00</span> kg·m/s</p>
+                        </div>
+                    </div>
+                    
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn" onclick="toggleSimulation()">
+                            <span id="playIcon">▶</span>
+                            <span id="playText">Start</span>
+                        </button>
+                        <button class="btn-secondary" onclick="reset()">
+                            <span>↻</span>
+                            <span>Reset</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Kinetic Energy vs Time</h2>
+                    <div class="chart-container">
+                        <canvas id="keChart"></canvas>
+                    </div>
+                </div>
+                
+
+            </div>
+            
+            <div>
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <h2>Initial Conditions</h2>
+                    
+                    <div class="control-group">
+                        <label>Mass 1: <span id="mass1-val">1.0</span> kg</label>
+                        <input type="range" id="mass1" min="0.5" max="5" step="0.1" value="1" oninput="updateMass1()">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Initial Velocity 1: <span id="initVel1-val">2.0</span> m/s</label>
+                        <input type="range" id="initVel1" min="-5" max="5" step="0.1" value="2" oninput="updateInitVel1()">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Mass 2: <span id="mass2-val">1.0</span> kg</label>
+                        <input type="range" id="mass2" min="0.5" max="5" step="0.1" value="1" oninput="updateMass2()">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Initial Velocity 2: <span id="initVel2-val">0.0</span> m/s</label>
+                        <input type="range" id="initVel2" min="-5" max="5" step="0.1" value="0" oninput="updateInitVel2()">
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Conservation Laws</h2>
+                    <div class="conservation">
+                        <div class="conservation-row">
+                            <span>Total KE:</span>
+                            <span id="totalKE">2.00 J</span>
+                        </div>
+                        <div class="conservation-row">
+                            <span>Total Momentum:</span>
+                            <span id="totalP">2.00 kg·m/s</span>
+                        </div>
+                        <div class="conservation-note">
+                            In elastic collisions, both kinetic energy and momentum are conserved.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 1.5rem;">
+                    <h2>Understanding Elastic Collisions</h2>
+                    <div style="line-height: 1.6; color: #4b5563; font-size: 0.875rem;">
+                        <h3 style="font-size: 0.95rem; font-weight: 600; color: #1f2937; margin-top: 0.5rem; margin-bottom: 0.5rem;">What is an Elastic Collision?</h3>
+                        <p style="margin-bottom: 1rem;">An elastic collision is one where both kinetic energy and momentum are conserved. No energy is lost to heat, sound, or deformation.</p>
+                        
+                        <h3 style="font-size: 0.95rem; font-weight: 600; color: #1f2937; margin-top: 1rem; margin-bottom: 0.5rem;">Conservation Laws</h3>
+                        <p style="margin-bottom: 0.5rem;"><strong>1. Conservation of Momentum:</strong></p>
+                        <p style="margin-bottom: 1rem; font-family: monospace; background: #f3f4f6; padding: 0.5rem; border-radius: 0.25rem;">m₁v₁ + m₂v₂ = m₁v₁' + m₂v₂'</p>
+                        
+                        <p style="margin-bottom: 0.5rem;"><strong>2. Conservation of Kinetic Energy:</strong></p>
+                        <p style="margin-bottom: 1rem; font-family: monospace; background: #f3f4f6; padding: 0.5rem; border-radius: 0.25rem;">½m₁v₁² + ½m₂v₂² = ½m₁v₁'² + ½m₂v₂'²</p>
+                        
+                        <h3 style="font-size: 0.95rem; font-weight: 600; color: #1f2937; margin-top: 1rem; margin-bottom: 0.5rem;">Final Velocities Formula</h3>
+                        <p style="margin-bottom: 0.5rem;">After solving both conservation equations:</p>
+                        <p style="margin-bottom: 0.5rem; font-family: monospace; background: #f3f4f6; padding: 0.5rem; border-radius: 0.25rem;">v₁' = ((m₁ - m₂)v₁ + 2m₂v₂) / (m₁ + m₂)</p>
+                        <p style="margin-bottom: 1rem; font-family: monospace; background: #f3f4f6; padding: 0.5rem; border-radius: 0.25rem;">v₂' = ((m₂ - m₁)v₂ + 2m₁v₁) / (m₁ + m₂)</p>
+                        
+                        <h3 style="font-size: 0.95rem; font-weight: 600; color: #1f2937; margin-top: 1rem; margin-bottom: 0.5rem;">Special Cases</h3>
+                        <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
+                            <li style="margin-bottom: 0.5rem;"><strong>Equal masses (m₁ = m₂):</strong> Objects exchange velocities</li>
+                            <li style="margin-bottom: 0.5rem;"><strong>Massive wall (m₂ → ∞):</strong> Moving object bounces back with reversed velocity</li>
+                            <li style="margin-bottom: 0.5rem;"><strong>Head-on collision:</strong> Energy transfer depends on mass ratio</li>
+                        </ul>
+                        
+                        <h3 style="font-size: 0.95rem; font-weight: 600; color: #1f2937; margin-top: 1rem; margin-bottom: 0.5rem;">Real-World Examples</h3>
+                        <ul style="margin-left: 1.5rem;">
+                            <li style="margin-bottom: 0.5rem;">Billiard balls colliding on a pool table</li>
+                            <li style="margin-bottom: 0.5rem;">Newton's cradle demonstrating momentum transfer</li>
+                            <li style="margin-bottom: 0.5rem;">Gas molecules bouncing in a container</li>
+                            <li style="margin-bottom: 0.5rem;">Atomic and subatomic particle collisions</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const TRACK_LENGTH = 10;
+        const BOX_WIDTH = 1;
+        
+        let mass1 = 1, mass2 = 1;
+        let initVel1 = 2, initVel2 = 0;
+        let pos1 = 1, pos2 = 8;
+        let vel1 = 2, vel2 = 0;
+        let isRunning = false;
+        let animationId = null;
+        let lastTime = Date.now();
+        let time = 0;
+        
+        // Canvas chart data
+        const keChartData = { time: [], ke1: [], ke2: [], total: [] };
+        const MAX_POINTS = 100;
+        
+        const keCanvas = document.getElementById('keChart');
+        const keCtx = keCanvas.getContext('2d');
+        
+        function drawChart(ctx, canvas, data, ylabel) {
+            const width = canvas.clientWidth;
+            const height = canvas.clientHeight;
+            canvas.width = width;
+            canvas.height = height;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            const padding = 50;
+            const graphWidth = width - padding * 2;
+            const graphHeight = height - padding * 2;
+            
+            if (data.time.length === 0) return;
+            
+            const maxTime = Math.max(...data.time);
+            const minTime = Math.min(...data.time);
+            const allValues = [...data.ke1 || [], ...data.ke2 || [], ...data.total || [], ...data.p1 || [], ...data.p2 || []];
+            const maxVal = Math.max(...allValues, 1);
+            const minVal = Math.min(...allValues, -1);
+            const range = maxVal - minVal || 1;
+            
+            // Draw axes
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.stroke();
+            
+            // Draw grid
+            ctx.strokeStyle = '#f3f4f6';
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (graphHeight / 5) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+            
+            // Y-axis labels
+            ctx.fillStyle = '#6b7280';
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (graphHeight / 5) * i;
+                const val = maxVal - (range / 5) * i;
+                ctx.fillText(val.toFixed(1), padding - 5, y + 3);
+            }
+            
+            // X-axis labels
+            ctx.textAlign = 'center';
+            for (let i = 0; i <= 5; i++) {
+                const x = padding + (graphWidth / 5) * i;
+                const val = minTime + ((maxTime - minTime) / 5) * i;
+                ctx.fillText(val.toFixed(1), x, height - padding + 15);
+            }
+            
+            // Axis labels
+            ctx.fillStyle = '#374151';
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Time (s)', width / 2, height - 10);
+            
+            ctx.save();
+            ctx.translate(15, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText(ylabel, 0, 0);
+            ctx.restore();
+            
+            // Draw lines with dotted style
+            function drawLine(values, color) {
+                if (values.length < 2) return;
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]); // Create dotted line
+                ctx.beginPath();
+                
+                for (let i = 0; i < data.time.length; i++) {
+                    const x = padding + ((data.time[i] - minTime) / (maxTime - minTime || 1)) * graphWidth;
+                    const y = height - padding - ((values[i] - minVal) / range) * graphHeight;
+                    
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+                ctx.setLineDash([]); // Reset to solid line
+            }
+            
+            if (data.ke1) {
+                drawLine(data.ke1, '#3b82f6');
+                drawLine(data.ke2, '#ef4444');
+                drawLine(data.total, '#10b981');
+            }
+            
+            // Legend
+            const legends = [['KE Block 1', '#3b82f6'], ['KE Block 2', '#ef4444'], ['Total KE', '#10b981']];
+            
+            let legendX = width - padding - 100;
+            const legendY = padding + 10;
+            
+            legends.forEach(([label, color], i) => {
+                ctx.fillStyle = color;
+                ctx.fillRect(legendX, legendY + i * 20, 15, 3);
+                ctx.fillStyle = '#374151';
+                ctx.font = '11px sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(label, legendX + 20, legendY + i * 20 + 3);
+            });
+        }
+        
+        function calculateKE(m, v) {
+            return 0.5 * m * v * v;
+        }
+        
+        function calculateMomentum(m, v) {
+            return m * v;
+        }
+        
+        function handleElasticCollision(m1, m2, v1, v2) {
+            const v1f = ((m1 - m2) * v1 + 2 * m2 * v2) / (m1 + m2);
+            const v2f = ((m2 - m1) * v2 + 2 * m1 * v1) / (m1 + m2);
+            return [v1f, v2f];
+        }
+        
+        function updateDisplay() {
+            document.getElementById('block1').style.left = (pos1 / TRACK_LENGTH * 100) + '%';
+            document.getElementById('block2').style.left = (pos2 / TRACK_LENGTH * 100) + '%';
+            
+            document.getElementById('pos1').textContent = pos1.toFixed(2);
+            document.getElementById('pos2').textContent = pos2.toFixed(2);
+            document.getElementById('vel1').textContent = vel1.toFixed(2);
+            document.getElementById('vel2').textContent = vel2.toFixed(2);
+            
+            const ke1 = calculateKE(mass1, vel1);
+            const ke2 = calculateKE(mass2, vel2);
+            const p1 = calculateMomentum(mass1, vel1);
+            const p2 = calculateMomentum(mass2, vel2);
+            
+            document.getElementById('ke1').textContent = ke1.toFixed(2);
+            document.getElementById('ke2').textContent = ke2.toFixed(2);
+            document.getElementById('p1').textContent = p1.toFixed(2);
+            document.getElementById('p2').textContent = p2.toFixed(2);
+            
+            document.getElementById('totalKE').textContent = (ke1 + ke2).toFixed(2) + ' J';
+            document.getElementById('totalP').textContent = (p1 + p2).toFixed(2) + ' kg·m/s';
+        }
+        
+        function animate() {
+            const now = Date.now();
+            const elapsed = (now - lastTime) / 1000;
+            lastTime = now;
+            
+            pos1 += vel1 * elapsed;
+            pos2 += vel2 * elapsed;
+            
+            if (pos1 <= 0) {
+                pos1 = 0;
+                vel1 = -vel1;
+            } else if (pos1 >= TRACK_LENGTH - BOX_WIDTH) {
+                pos1 = TRACK_LENGTH - BOX_WIDTH;
+                vel1 = -vel1;
+            }
+            
+            if (pos2 <= 0) {
+                pos2 = 0;
+                vel2 = -vel2;
+            } else if (pos2 >= TRACK_LENGTH - BOX_WIDTH) {
+                pos2 = TRACK_LENGTH - BOX_WIDTH;
+                vel2 = -vel2;
+            }
+            
+            if (Math.abs(pos1 - pos2) < BOX_WIDTH && Math.abs(pos1 - pos2) > 0.01) {
+                const [newV1, newV2] = handleElasticCollision(mass1, mass2, vel1, vel2);
+                vel1 = newV1;
+                vel2 = newV2;
+            }
+            
+            time += elapsed;
+            
+            if (Math.floor(time * 5) > Math.floor((time - elapsed) * 5)) {
+                const ke1 = calculateKE(mass1, vel1);
+                const ke2 = calculateKE(mass2, vel2);
+                const p1 = calculateMomentum(mass1, vel1);
+                const p2 = calculateMomentum(mass2, vel2);
+                
+                keChartData.time.push(time);
+                keChartData.ke1.push(ke1);
+                keChartData.ke2.push(ke2);
+                keChartData.total.push(ke1 + ke2);
+                
+                if (keChartData.time.length > MAX_POINTS) {
+                    keChartData.time.shift();
+                    keChartData.ke1.shift();
+                    keChartData.ke2.shift();
+                    keChartData.total.shift();
+                }
+                
+                drawChart(keCtx, keCanvas, keChartData, 'Energy (J)');
+            }
+            
+            updateDisplay();
+            
+            if (isRunning) {
+                animationId = requestAnimationFrame(animate);
+            }
+        }
+        
+        function toggleSimulation() {
+            isRunning = !isRunning;
+            const icon = document.getElementById('playIcon');
+            const text = document.getElementById('playText');
+            const inputs = document.querySelectorAll('input[type="range"]');
+            
+            if (isRunning) {
+                icon.textContent = '⏸';
+                text.textContent = 'Pause';
+                lastTime = Date.now();
+                inputs.forEach(input => input.disabled = true);
+                animationId = requestAnimationFrame(animate);
+            } else {
+                icon.textContent = '▶';
+                text.textContent = 'Start';
+                inputs.forEach(input => input.disabled = false);
+                if (animationId) cancelAnimationFrame(animationId);
+            }
+        }
+        
+        function reset() {
+            isRunning = false;
+            if (animationId) cancelAnimationFrame(animationId);
+            
+            document.getElementById('playIcon').textContent = '▶';
+            document.getElementById('playText').textContent = 'Start';
+            document.querySelectorAll('input[type="range"]').forEach(input => input.disabled = false);
+            
+            pos1 = 1;
+            pos2 = 8;
+            vel1 = initVel1;
+            vel2 = initVel2;
+            time = 0;
+            lastTime = Date.now();
+            
+            keChartData.time = [];
+            keChartData.ke1 = [];
+            keChartData.ke2 = [];
+            keChartData.total = [];
+            
+            drawChart(keCtx, keCanvas, keChartData, 'Energy (J)');
+            updateDisplay();
+        }
+        
+        function updateMass1() {
+            mass1 = parseFloat(document.getElementById('mass1').value);
+            document.getElementById('mass1-val').textContent = mass1.toFixed(1);
+            if (!isRunning) {
+                updateDisplay();
+            }
+        }
+        
+        function updateMass2() {
+            mass2 = parseFloat(document.getElementById('mass2').value);
+            document.getElementById('mass2-val').textContent = mass2.toFixed(1);
+            if (!isRunning) {
+                updateDisplay();
+            }
+        }
+        
+        function updateInitVel1() {
+            initVel1 = parseFloat(document.getElementById('initVel1').value);
+            document.getElementById('initVel1-val').textContent = initVel1.toFixed(1);
+            if (!isRunning) {
+                vel1 = initVel1;
+                updateDisplay();
+            }
+        }
+        
+        function updateInitVel2() {
+            initVel2 = parseFloat(document.getElementById('initVel2').value);
+            document.getElementById('initVel2-val').textContent = initVel2.toFixed(1);
+            if (!isRunning) {
+                vel2 = initVel2;
+                updateDisplay();
+            }
+        }
+        
+        // Initial draw
+        updateDisplay();
+        drawChart(keCtx, keCanvas, keChartData, 'Energy (J)');
+        
+        // Redraw charts on window resize
+        window.addEventListener('resize', () => {
+            drawChart(keCtx, keCanvas, keChartData, 'Energy (J)');
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
