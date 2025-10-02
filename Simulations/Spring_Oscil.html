@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Oscillation Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f9fafb;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            font-weight: 300;
+            color: #1f2937;
+            margin-bottom: 2rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+        }
+        
+        .spring-container {
+            position: relative;
+            background: #f3f4f6;
+            height: 150px;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .wall {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 20px;
+            background: repeating-linear-gradient(
+                45deg,
+                #1f2937,
+                #1f2937 10px,
+                #374151 10px,
+                #374151 20px
+            );
+        }
+        
+        .spring {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 4px;
+        }
+        
+        .spring-coil {
+            position: absolute;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 30px;
+        }
+        
+        .mass {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            background: #3b82f6;
+            border-radius: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            transition: left 0.05s linear;
+        }
+        
+        .equilibrium-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #10b981;
+            opacity: 0.5;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background: #eff6ff;
+        }
+        
+        .stat-card h3 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1e40af;
+        }
+        
+        .stat-card p {
+            font-size: 0.875rem;
+            color: #4b5563;
+            margin: 0.25rem 0;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+        
+        .btn-primary {
+            background: #1f2937;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #374151;
+        }
+        
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+        
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+        
+        .control-group {
+            margin-bottom: 1rem;
+        }
+        
+        .control-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+        
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e5e7eb;
+            outline: none;
+        }
+        
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+        }
+        
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .chart-container {
+            margin-top: 1rem;
+            height: 250px;
+            position: relative;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background: white;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Spring Oscillation Simulator</h1>
+        
+        <div class="grid">
+            <div class="left-column">
+                <div class="card">
+                    <div class="spring-container">
+                        <div class="wall"></div>
+                        <canvas id="springCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
+                        <div class="equilibrium-line" id="eqLine"></div>
+                        <div class="mass" id="mass">m</div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Position & Motion</h3>
+                            <p>Displacement: <span id="displacement">0.00</span> m</p>
+                            <p>Velocity: <span id="velocity">0.00</span> m/s</p>
+                            <p>Acceleration: <span id="acceleration">0.00</span> m/s²</p>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <h3>Energy</h3>
+                            <p>Kinetic: <span id="ke">0.00</span> J</p>
+                            <p>Potential: <span id="pe">0.00</span> J</p>
+                            <p>Total: <span id="totalE">0.00</span> J</p>
+                        </div>
+                    </div>
+                    
+                    <div class="controls">
+                        <button class="btn-primary" id="playBtn" onclick="toggleSimulation()">
+                            <span id="playIcon">▶</span>
+                            <span id="playText">Start</span>
+                        </button>
+                        <button class="btn-secondary" onclick="reset()">
+                            <span>↻</span>
+                            <span>Reset</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Displacement vs Time</h2>
+                    <div class="chart-container">
+                        <canvas id="dispChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Phase Space (Displacement vs Velocity)</h2>
+                    <div class="chart-container">
+                        <canvas id="phaseChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <h2>Initial Conditions</h2>
+                    
+                    <div class="control-group">
+                        <label>Spring Constant (k): <span id="k-val">20.0</span> N/m</label>
+                        <input type="range" id="k" min="5" max="100" step="5" value="20" oninput="updateK()">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Mass (m): <span id="m-val">1.0</span> kg</label>
+                        <input type="range" id="m" min="0.5" max="5" step="0.1" value="1" oninput="updateMass()">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Initial Displacement (x₀): <span id="x0-val">2.0</span> m</label>
+                        <input type="range" id="x0" min="-3" max="3" step="0.1" value="2" oninput="updateX0()">
+                    </div>
+                    
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: #eff6ff; border-radius: 0.5rem;">
+                        <p style="font-size: 0.875rem; color: #1e40af; margin-bottom: 0.5rem;"><strong>System Properties</strong></p>
+                        <p style="font-size: 0.875rem; color: #4b5563; margin: 0.25rem 0;">Period: <span id="period">1.40</span> s</p>
+                        <p style="font-size: 0.875rem; color: #4b5563; margin: 0.25rem 0;">Frequency: <span id="frequency">0.71</span> Hz</p>
+                        <p style="font-size: 0.875rem; color: #4b5563; margin: 0.25rem 0;">Angular Freq: <span id="omega">4.47</span> rad/s</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Understanding Spring Oscillation</h2>
+                    <div style="line-height: 1.6; color: #4b5563; font-size: 0.875rem;">
+                        <h3 style="font-size: 0.95rem; font-weight: 600; color: #1f2937; margin-top: 0.5rem; margin-bottom: 0.5rem;">Simple Harmonic Motion</h3>
+                        <p style="margin-bottom: 1rem;">A mass attached to a spring undergoes simple harmonic motion (SHM) when displaced from equilibrium on a frictionless surface.</p>
+                        
+                        <h3 style="font-size: 0.95rem; font-weight: 600; color: #1f2937; margin-top: 1rem; margin-bottom: 0.5rem;">Key Equations</h3>
+                        <p style="margin-bottom: 0.5rem;"><strong>Hooke's Law:</strong></p>
+                        <p style="margin-bottom: 1rem; font-family: monospace; background: #f3f4f6; padding: 0.5rem; border-radius: 0.25rem;">F = -kx</p>
+                        
+                        <p style="margin-bottom: 0.5rem;"><strong>Position:</strong></p>
+                        <p style="margin-bottom: 1rem; font-family: monospace; background: #f3f4f6; padding: 0.5rem; border-radius: 0.25rem;">x(t) = A·cos(ωt + φ)</p>
+                        
+                        <p style="margin-bottom: 0.5rem;"><strong>Angular Frequency:</strong></p>
+                        <p style="margin-bottom: 1rem; font-family: monospace; background: #f3f4f6; padding: 0.5rem; border-radius: 0.25rem;">ω = √(k/m)</p>
+                        
+                        <p style="margin-bottom: 0.5rem;"><strong>Period:</strong></p>
+                        <p style="margin-bottom: 1rem; font-family: monospace; background: #f3f4f6; padding: 0.5rem; border-radius: 0.25rem;">T = 2π√(m/k)</p>
+                        
+                        <h3 style="font-size: 0.95rem; font-weight: 600; color: #1f2937; margin-top: 1rem; margin-bottom: 0.5rem;">Energy Conservation</h3>
+                        <p style="margin-bottom: 0.5rem;">Total mechanical energy remains constant:</p>
+                        <p style="margin-bottom: 0.5rem; font-family: monospace; background: #f3f4f6; padding: 0.5rem; border-radius: 0.25rem;">E = KE + PE = ½mv² + ½kx²</p>
+                        <p style="margin-bottom: 1rem; font-family: monospace; background: #f3f4f6; padding: 0.5rem; border-radius: 0.25rem;">E = ½kA² (constant)</p>
+                        
+                        <h3 style="font-size: 0.95rem; font-weight: 600; color: #1f2937; margin-top: 1rem; margin-bottom: 0.5rem;">Phase Space</h3>
+                        <p style="margin-bottom: 1rem;">The displacement-velocity graph forms an ellipse, showing the periodic exchange between kinetic and potential energy.</p>
+                        
+                        <h3 style="font-size: 0.95rem; font-weight: 600; color: #1f2937; margin-top: 1rem; margin-bottom: 0.5rem;">Real-World Examples</h3>
+                        <ul style="margin-left: 1.5rem;">
+                            <li style="margin-bottom: 0.5rem;">Car suspension systems</li>
+                            <li style="margin-bottom: 0.5rem;">Mechanical watches and clocks</li>
+                            <li style="margin-bottom: 0.5rem;">Earthquake dampers in buildings</li>
+                            <li style="margin-bottom: 0.5rem;">Musical instrument strings</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let k = 20; // Spring constant
+        let mass = 1; // Mass
+        let x0 = 2; // Initial displacement
+        let v0 = 0; // Initial velocity
+        let x = 2; // Current displacement
+        let v = 0; // Current velocity
+        let a = 0; // Current acceleration
+        let isRunning = false;
+        let animationId = null;
+        let lastTime = Date.now();
+        let time = 0;
+        let amplitude = 0; // Amplitude of oscillation
+        let phase = 0; // Phase angle
+        
+        const EQUILIBRIUM = 400; // Equilibrium position in pixels
+        const SCALE = 50; // Pixels per meter
+        
+        // Chart data
+        const dispChartData = { time: [], displacement: [] };
+        const phaseChartData = { displacement: [], velocity: [] };
+        const MAX_POINTS = 200;
+        
+        const dispCanvas = document.getElementById('dispChart');
+        const phaseCanvas = document.getElementById('phaseChart');
+        const springCanvas = document.getElementById('springCanvas');
+        const dispCtx = dispCanvas.getContext('2d');
+        const phaseCtx = phaseCanvas.getContext('2d');
+        const springCtx = springCanvas.getContext('2d');
+        
+        function calculateOmega() {
+            return Math.sqrt(k / mass);
+        }
+        
+        function calculatePeriod() {
+            return 2 * Math.PI * Math.sqrt(mass / k);
+        }
+        
+        function calculateFrequency() {
+            return 1 / calculatePeriod();
+        }
+        
+        function updateSystemProperties() {
+            document.getElementById('period').textContent = calculatePeriod().toFixed(2);
+            document.getElementById('frequency').textContent = calculateFrequency().toFixed(2);
+            document.getElementById('omega').textContent = calculateOmega().toFixed(2);
+        }
+        
+        function drawSpring(displacement) {
+            const canvas = springCanvas;
+            const ctx = springCtx;
+            const width = canvas.clientWidth;
+            const height = canvas.clientHeight;
+            canvas.width = width;
+            canvas.height = height;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            const startX = 30;
+            const endX = EQUILIBRIUM + displacement * SCALE;
+            const centerY = height / 2;
+            
+            // Draw spring
+            ctx.strokeStyle = '#6b7280';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            const coils = 12;
+            const springLength = endX - startX - 30;
+            const coilWidth = springLength / coils;
+            const amplitude = 15;
+            
+            ctx.moveTo(startX, centerY);
+            
+            for (let i = 0; i <= coils; i++) {
+                const x = startX + i * coilWidth;
+                const y = centerY + (i % 2 === 0 ? -amplitude : amplitude);
+                ctx.lineTo(x, y);
+            }
+            
+            ctx.lineTo(endX - 30, centerY);
+            ctx.stroke();
+            
+            // Draw connecting line to mass
+            ctx.beginPath();
+            ctx.moveTo(endX - 30, centerY);
+            ctx.lineTo(endX, centerY);
+            ctx.stroke();
+        }
+        
+        function drawChart(ctx, canvas, data, xlabel, ylabel, isPhaseSpace = false) {
+            const width = canvas.clientWidth;
+            const height = canvas.clientHeight;
+            canvas.width = width;
+            canvas.height = height;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            const padding = 50;
+            const graphWidth = width - padding * 2;
+            const graphHeight = height - padding * 2;
+            
+            if (data.time && data.time.length === 0 && !isPhaseSpace) return;
+            if (isPhaseSpace && data.displacement.length === 0) return;
+            
+            let xData, yData;
+            if (isPhaseSpace) {
+                xData = data.displacement;
+                yData = data.velocity;
+            } else {
+                xData = data.time;
+                yData = data.displacement;
+            }
+            
+            const maxX = Math.max(...xData, 1);
+            const minX = Math.min(...xData, isPhaseSpace ? -1 : 0);
+            const maxY = Math.max(...yData, 1);
+            const minY = Math.min(...yData, -1);
+            const rangeX = maxX - minX || 1;
+            const rangeY = maxY - minY || 1;
+            
+            // Draw axes
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.stroke();
+            
+            // Draw grid
+            ctx.strokeStyle = '#f3f4f6';
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (graphHeight / 5) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+            
+            // Y-axis labels
+            ctx.fillStyle = '#6b7280';
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (graphHeight / 5) * i;
+                const val = maxY - (rangeY / 5) * i;
+                ctx.fillText(val.toFixed(1), padding - 5, y + 3);
+            }
+            
+            // X-axis labels
+            ctx.textAlign = 'center';
+            for (let i = 0; i <= 5; i++) {
+                const x = padding + (graphWidth / 5) * i;
+                const val = minX + (rangeX / 5) * i;
+                ctx.fillText(val.toFixed(1), x, height - padding + 15);
+            }
+            
+            // Axis labels
+            ctx.fillStyle = '#374151';
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(xlabel, width / 2, height - 10);
+            
+            ctx.save();
+            ctx.translate(15, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText(ylabel, 0, 0);
+            ctx.restore();
+            
+            // Draw line
+            if (xData.length < 2) return;
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            
+            for (let i = 0; i < xData.length; i++) {
+                const x = padding + ((xData[i] - minX) / rangeX) * graphWidth;
+                const y = height - padding - ((yData[i] - minY) / rangeY) * graphHeight;
+                
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        
+        function calculateInitialConditions() {
+            const omega = calculateOmega();
+            // For x(t) = A*cos(ωt + φ) and v(t) = -Aω*sin(ωt + φ)
+            // At t=0: x0 = A*cos(φ) and v0 = -Aω*sin(φ)
+            // Amplitude: A = sqrt(x0^2 + (v0/ω)^2)
+            amplitude = Math.sqrt(x0 * x0 + (v0 / omega) * (v0 / omega));
+            // Phase: φ = atan2(-v0/ω, x0)
+            phase = Math.atan2(-v0 / omega, x0);
+        }
+        
+        function updateDisplay() {
+            const massEl = document.getElementById('mass');
+            const eqLine = document.getElementById('eqLine');
+            
+            const pixelPos = EQUILIBRIUM + x * SCALE;
+            massEl.style.left = (pixelPos - 30) + 'px';
+            eqLine.style.left = EQUILIBRIUM + 'px';
+            
+            document.getElementById('displacement').textContent = x.toFixed(2);
+            document.getElementById('velocity').textContent = v.toFixed(2);
+            document.getElementById('acceleration').textContent = a.toFixed(2);
+            
+            const ke = 0.5 * mass * v * v;
+            const pe = 0.5 * k * x * x;
+            const totalE = ke + pe;
+            
+            document.getElementById('ke').textContent = ke.toFixed(2);
+            document.getElementById('pe').textContent = pe.toFixed(2);
+            document.getElementById('totalE').textContent = totalE.toFixed(2);
+            
+            drawSpring(x);
+        }
+        
+        function animate() {
+            const now = Date.now();
+            const elapsed = (now - lastTime) / 1000;
+            lastTime = now;
+            
+            time += elapsed;
+            
+            // Analytical solution for SHM
+            const omega = calculateOmega();
+            
+            // x(t) = A*cos(ωt + φ)
+            x = amplitude * Math.cos(omega * time + phase);
+            
+            // v(t) = -Aω*sin(ωt + φ) = dx/dt
+            v = -amplitude * omega * Math.sin(omega * time + phase);
+            
+            // a(t) = -Aω²*cos(ωt + φ) = -ω²x
+            a = -omega * omega * x;
+            
+            // Update chart data
+            if (Math.floor(time * 10) > Math.floor((time - elapsed) * 10)) {
+                dispChartData.time.push(time);
+                dispChartData.displacement.push(x);
+                
+                phaseChartData.displacement.push(x);
+                phaseChartData.velocity.push(v);
+                
+                if (dispChartData.time.length > MAX_POINTS) {
+                    dispChartData.time.shift();
+                    dispChartData.displacement.shift();
+                }
+                
+                if (phaseChartData.displacement.length > MAX_POINTS) {
+                    phaseChartData.displacement.shift();
+                    phaseChartData.velocity.shift();
+                }
+                
+                drawChart(dispCtx, dispCanvas, dispChartData, 'Time (s)', 'Displacement (m)');
+                drawChart(phaseCtx, phaseCanvas, phaseChartData, 'Displacement (m)', 'Velocity (m/s)', true);
+            }
+            
+            updateDisplay();
+            
+            if (isRunning) {
+                animationId = requestAnimationFrame(animate);
+            }
+        }
+        
+        function toggleSimulation() {
+            isRunning = !isRunning;
+            const icon = document.getElementById('playIcon');
+            const text = document.getElementById('playText');
+            const inputs = document.querySelectorAll('input[type="range"]');
+            
+            if (isRunning) {
+                icon.textContent = '⏸';
+                text.textContent = 'Pause';
+                lastTime = Date.now();
+                calculateInitialConditions(); // Calculate amplitude and phase
+                inputs.forEach(input => input.disabled = true);
+                animationId = requestAnimationFrame(animate);
+            } else {
+                icon.textContent = '▶';
+                text.textContent = 'Start';
+                inputs.forEach(input => input.disabled = false);
+                if (animationId) cancelAnimationFrame(animationId);
+            }
+        }
+        
+        function reset() {
+            isRunning = false;
+            if (animationId) cancelAnimationFrame(animationId);
+            
+            document.getElementById('playIcon').textContent = '▶';
+            document.getElementById('playText').textContent = 'Start';
+            document.querySelectorAll('input[type="range"]').forEach(input => input.disabled = false);
+            
+            x = x0;
+            v = 0;
+            v0 = 0;
+            a = 0;
+            time = 0;
+            lastTime = Date.now();
+            calculateInitialConditions();
+            
+            dispChartData.time = [];
+            dispChartData.displacement = [];
+            phaseChartData.displacement = [];
+            phaseChartData.velocity = [];
+            
+            drawChart(dispCtx, dispCanvas, dispChartData, 'Time (s)', 'Displacement (m)');
+            drawChart(phaseCtx, phaseCanvas, phaseChartData, 'Displacement (m)', 'Velocity (m/s)', true);
+            updateDisplay();
+        }
+        
+        function updateK() {
+            k = parseFloat(document.getElementById('k').value);
+            document.getElementById('k-val').textContent = k.toFixed(1);
+            updateSystemProperties();
+            if (!isRunning) {
+                updateDisplay();
+            }
+        }
+        
+        function updateMass() {
+            mass = parseFloat(document.getElementById('m').value);
+            document.getElementById('m-val').textContent = mass.toFixed(1);
+            updateSystemProperties();
+            if (!isRunning) {
+                updateDisplay();
+            }
+        }
+        
+        function updateX0() {
+            x0 = parseFloat(document.getElementById('x0').value);
+            document.getElementById('x0-val').textContent = x0.toFixed(1);
+            if (!isRunning) {
+                x = x0;
+                v = 0;
+                a = 0;
+                updateDisplay();
+            }
+        }
+        
+        // Initial setup
+        calculateInitialConditions();
+        updateSystemProperties();
+        updateDisplay();
+        drawChart(dispCtx, dispCanvas, dispChartData, 'Time (s)', 'Displacement (m)');
+        drawChart(phaseCtx, phaseCanvas, phaseChartData, 'Displacement (m)', 'Velocity (m/s)', true);
+        
+        // Redraw charts on window resize
+        window.addEventListener('resize', () => {
+            drawChart(dispCtx, dispCanvas, dispChartData, 'Time (s)', 'Displacement (m)');
+            drawChart(phaseCtx, phaseCanvas, phaseChartData, 'Displacement (m)', 'Velocity (m/s)', true);
+            drawSpring(x);
+        });
+    </script>
+</body>
+</html>
