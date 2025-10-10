@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elastic Collision Simulation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+            color: #2d3748;
+            overflow-x: hidden;
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .header {
+            padding: 8rem 5% 2rem;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #718096;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 5% 5rem;
+        }
+
+        .sim-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            border-radius: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: #f7fafc;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        #simulationCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .controls-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .control-group {
+            background: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 15px;
+        }
+
+        .control-group h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #2d3748;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.9rem;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.7rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #718096;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(250, 112, 154, 0.3);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 1rem;
+        }
+
+        .theory-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            line-height: 1.8;
+        }
+
+        .theory-section h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: #2d3748;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        .theory-section h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .theory-section h3 {
+            font-size: 1.3rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #2d3748;
+        }
+
+        .theory-section p {
+            color: #4a5568;
+            margin-bottom: 1rem;
+        }
+
+        .formula-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .formula {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: #2d3748;
+            text-align: center;
+            margin: 0.5rem 0;
+        }
+
+        .info-box {
+            background: #e6fffa;
+            border-left: 4px solid #38b2ac;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .info-box p {
+            color: #234e52;
+            margin: 0;
+        }
+
+        footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 3rem 5%;
+            margin-top: 5rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .social-links a {
+            color: white;
+            font-size: 1.5rem;
+            transition: transform 0.3s, color 0.3s;
+            text-decoration: none;
+        }
+
+        .social-links a:hover {
+            transform: translateY(-3px);
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .stats-bar {
+                flex-direction: column;
+            }
+
+            .controls-section {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .canvas-container {
+                height: 250px;
+            }
+
+            .theory-section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="index.html" class="logo">STEM for All</a>
+        <ul class="nav-links">
+            <li><a href="../index.html">About</a></li>
+            <li><a href="../simulations.html">Simulations</a></li>
+            <li><a href="../articles.html">Articles</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <div class="header">
+        <h1>Elastic Collision Simulation</h1>
+        <p>Explore the physics of elastic collisions between two blocks on a frictionless track with real-time energy visualization. The walls are considered immovable.</p>
+    </div>
+
+    <div class="container">
+        <div class="sim-section">
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-label">Time</div>
+                    <div class="stat-value" id="timeDisplay">0.00 s</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Block A Velocity</div>
+                    <div class="stat-value" id="velocityA">0.00 m/s</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Block B Velocity</div>
+                    <div class="stat-value" id="velocityB">0.00 m/s</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Total KE</div>
+                    <div class="stat-value" id="totalKE">0.00 J</div>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="simulationCanvas"></canvas>
+            </div>
+
+            <div class="controls-section">
+                <div class="control-group">
+                    <h3>Block A (Red)</h3>
+                    <div class="input-group">
+                        <label for="massA">Mass (kg)</label>
+                        <input type="number" id="massA" min="0.1" max="10" step="0.1" value="1">
+                    </div>
+                    <div class="input-group">
+                        <label for="velocityAInput">Initial Velocity (m/s)</label>
+                        <input type="number" id="velocityAInput" min="-10" max="10" step="0.1" value="2">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>Block B (Blue)</h3>
+                    <div class="input-group">
+                        <label for="massB">Mass (kg)</label>
+                        <input type="number" id="massB" min="0.1" max="10" step="0.1" value="1">
+                    </div>
+                    <div class="input-group">
+                        <label for="velocityBInput">Initial Velocity (m/s)</label>
+                        <input type="number" id="velocityBInput" min="-10" max="10" step="0.1" value="-1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" id="startBtn">▶ Start</button>
+                <button class="btn btn-secondary" id="pauseBtn" disabled>⏸ Pause</button>
+                <button class="btn btn-danger" id="resetBtn">⟲ Reset</button>
+            </div>
+        </div>
+
+        <div class="sim-section">
+            <h3 style="margin-bottom: 1rem; color: #2d3748;">Kinetic Energy Over Time</h3>
+            <div class="chart-container">
+                <canvas id="energyChart"></canvas>
+            </div>
+        </div>
+
+        <div class="theory-section">
+            <h2>Understanding Elastic Collisions</h2>
+            
+            <p>An elastic collision is a type of collision where both momentum and kinetic energy are conserved. This simulation demonstrates the behavior of two blocks colliding elastically on a frictionless track with walls at both ends.</p>
+
+            <h3>Conservation Laws</h3>
+            <p>In an elastic collision, two fundamental principles govern the motion:</p>
+
+            <div class="formula-box">
+                <p style="margin-bottom: 0.5rem; font-weight: 600;">Conservation of Momentum:</p>
+                <div class="formula">m₁v₁ᵢ + m₂v₂ᵢ = m₁v₁f + m₂v₂f</div>
+            </div>
+
+            <div class="formula-box">
+                <p style="margin-bottom: 0.5rem; font-weight: 600;">Conservation of Kinetic Energy:</p>
+                <div class="formula">½m₁v₁ᵢ² + ½m₂v₂ᵢ² = ½m₁v₁f² + ½m₂v₂f²</div>
+            </div>
+
+            <h3>Final Velocities After Collision</h3>
+            <p>Using these conservation laws, we can derive the final velocities after collision:</p>
+
+            <div class="formula-box">
+                <div class="formula">v₁f = ((m₁ - m₂)v₁ᵢ + 2m₂v₂ᵢ) / (m₁ + m₂)</div>
+                <div class="formula" style="margin-top: 0.5rem;">v₂f = ((m₂ - m₁)v₂ᵢ + 2m₁v₁ᵢ) / (m₁ + m₂)</div>
+            </div>
+
+            <h3>Special Cases</h3>
+            <p><strong>Equal Masses (m₁ = m₂):</strong> When two objects of equal mass collide elastically, they exchange velocities. The first object takes on the velocity of the second, and vice versa.</p>
+
+            <p><strong>One Object Initially at Rest:</strong> If one object is stationary and the other moves toward it, after collision both objects will generally be in motion, with the final velocities depending on the mass ratio.</p>
+
+            <p><strong>Wall Collisions:</strong> When a block collides with the immovable walls at the ends of the track, its velocity reverses (multiplied by -1), representing a perfect elastic collision with an object of infinite mass.</p>
+
+            <div class="info-box">
+                <p><strong>💡 Key Insight:</strong> The total kinetic energy remains constant throughout the simulation (shown in the yellow line on the graph). This is the defining characteristic of elastic collisions. In real-world scenarios, some energy is always lost to heat, sound, and deformation, making perfectly elastic collisions an idealization.</p>
+            </div>
+
+            <h3>Applications</h3>
+            <p>Elastic collisions are approximated in many real-world scenarios including:</p>
+            <ul style="margin-left: 2rem; color: #4a5568;">
+                <li>Billiard ball collisions</li>
+                <li>Atomic and subatomic particle interactions</li>
+                <li>Gas molecule collisions in ideal gases</li>
+                <li>Newton's cradle demonstrations</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer id="contact">
+        <div class="footer-content">
+            <p>I try my best to get the science right, but if you catch something off, please let me know so I can correct it. Thank you!</p>
+            <br>
+            <h3>Contacts</h3>
+            <div class="social-links">
+                <a href="mailto:ayadianup37@gmail.com">📧</a>
+                <a href="https://www.linkedin.com/in/anup-kumar-ayadi-044519277">💼</a>
+            </div>
+            <p style="margin-top: 2rem; color: #a0aec0;">© 2025 Anup Kumar Ayadi</p>
+        </div>
+    </footer>
+
+    <script>
+        // Canvas setup
+        const canvas = document.getElementById('simulationCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Simulation parameters
+        const TRACK_LENGTH = 10; // meters
+        const INITIAL_SEPARATION = 4; // meters
+        const TIME_STEP = 0.016; // ~60 FPS
+        const SCALE_FACTOR = 0.75; // Scale for better visualization
+
+        // Simulation state
+        let animationId = null;
+        let isRunning = false;
+        let time = 0;
+
+        // Block properties
+        let blockA = {
+            mass: 1,
+            velocity: 2,
+            position: 2,
+            size: 40,
+            color: '#fa709a'
+        };
+
+        let blockB = {
+            mass: 1,
+            velocity: -1,
+            position: 6,
+            size: 40,
+            color: '#667eea'
+        };
+
+        // Chart setup
+        const chartData = {
+            labels: [],
+            datasets: [
+                {
+                    label: 'Block A KE (J)',
+                    data: [],
+                    borderColor: '#fa709a',
+                    backgroundColor: 'rgba(250, 112, 154, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Block B KE (J)',
+                    data: [],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Total KE (J)',
+                    data: [],
+                    borderColor: '#fee140',
+                    backgroundColor: 'rgba(254, 225, 64, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3,
+                    fill: false
+                }
+            ]
+        };
+
+        const energyChart = new Chart(document.getElementById('energyChart'), {
+            type: 'line',
+            data: chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time (s)'
+                        },
+                        ticks: {
+                            maxTicksLimit: 10
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Kinetic Energy (J)'
+                        },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Resize canvas
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Calculate kinetic energy
+        function kineticEnergy(mass, velocity) {
+            return 0.5 * mass * velocity * velocity;
+        }
+
+        // Elastic collision between blocks
+        function collideBlocks() {
+            const m1 = blockA.mass;
+            const m2 = blockB.mass;
+            const v1 = blockA.velocity;
+            const v2 = blockB.velocity;
+
+            const v1f = ((m1 - m2) * v1 + 2 * m2 * v2) / (m1 + m2);
+            const v2f = ((m2 - m1) * v2 + 2 * m1 * v1) / (m1 + m2);
+
+            blockA.velocity = v1f;
+            blockB.velocity = v2f;
+        }
+
+        // Check for collisions
+        function checkCollisions() {
+            // Check wall collisions
+            const blockARadius = blockA.size / 2 / (canvas.width / TRACK_LENGTH);
+            const blockBRadius = blockB.size / 2 / (canvas.width / TRACK_LENGTH);
+
+            if (blockA.position - blockARadius <= 0) {
+                blockA.position = blockARadius;
+                blockA.velocity = -blockA.velocity;
+            }
+            if (blockA.position + blockARadius >= TRACK_LENGTH) {
+                blockA.position = TRACK_LENGTH - blockARadius;
+                blockA.velocity = -blockA.velocity;
+            }
+
+            if (blockB.position - blockBRadius <= 0) {
+                blockB.position = blockBRadius;
+                blockB.velocity = -blockB.velocity;
+            }
+            if (blockB.position + blockBRadius >= TRACK_LENGTH) {
+                blockB.position = TRACK_LENGTH - blockBRadius;
+                blockB.velocity = -blockB.velocity;
+            }
+
+            // Check block-to-block collision
+            const distance = Math.abs(blockB.position - blockA.position);
+            const minDistance = (blockARadius + blockBRadius);
+
+            if (distance <= minDistance) {
+                // Separate blocks to prevent overlap
+                const overlap = minDistance - distance;
+                if (blockA.position < blockB.position) {
+                    blockA.position -= overlap / 2;
+                    blockB.position += overlap / 2;
+                } else {
+                    blockA.position += overlap / 2;
+                    blockB.position -= overlap / 2;
+                }
+                collideBlocks();
+            }
+        }
+
+        // Update simulation
+        function update() {
+            time += TIME_STEP;
+
+            blockA.position += blockA.velocity * TIME_STEP;
+            blockB.position += blockB.velocity * TIME_STEP;
+
+            checkCollisions();
+
+            // Update display
+            document.getElementById('timeDisplay').textContent = time.toFixed(2) + ' s';
+            document.getElementById('velocityA').textContent = blockA.velocity.toFixed(2) + ' m/s';
+            document.getElementById('velocityB').textContent = blockB.velocity.toFixed(2) + ' m/s';
+
+            const keA = kineticEnergy(blockA.mass, blockA.velocity);
+            const keB = kineticEnergy(blockB.mass, blockB.velocity);
+            const totalKE = keA + keB;
+
+            document.getElementById('totalKE').textContent = totalKE.toFixed(2) + ' J';
+
+            // Update chart (sample every 10 frames to reduce clutter)
+            if (Math.floor(time / TIME_STEP) % 10 === 0) {
+                chartData.labels.push(time.toFixed(2));
+                chartData.datasets[0].data.push(keA);
+                chartData.datasets[1].data.push(keB);
+                chartData.datasets[2].data.push(totalKE);
+
+                // Limit data points
+                if (chartData.labels.length > 100) {
+                    chartData.labels.shift();
+                    chartData.datasets.forEach(dataset => dataset.data.shift());
+                }
+
+                energyChart.update('none');
+            }
+        }
+
+        // Draw simulation
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const padding = 40;
+            const trackY = canvas.height / 2;
+            const trackWidth = canvas.width - 2 * padding;
+            const scale = trackWidth / TRACK_LENGTH;
+
+            // Draw track
+            ctx.strokeStyle = '#cbd5e0';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(padding, trackY);
+            ctx.lineTo(canvas.width - padding, trackY);
+            ctx.stroke();
+
+            // Draw walls
+            ctx.fillStyle = '#4a5568';
+            ctx.fillRect(padding - 10, trackY - 30, 10, 60);
+            ctx.fillRect(canvas.width - padding, trackY - 30, 10, 60);
+
+            // Draw blocks
+            function drawBlock(block) {
+                const x = padding + block.position * scale;
+                const size = Math.max(30, Math.min(60, 20 + block.mass * 20));
+                
+                ctx.fillStyle = block.color;
+                ctx.beginPath();
+                ctx.roundRect(x - size / 2, trackY - size / 2, size, size, 8);
+                ctx.fill();
+
+                // Draw shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.beginPath();
+                ctx.ellipse(x, trackY + size / 2 + 5, size / 2, 8, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw mass label
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 14px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(block.mass.toFixed(1) + ' kg', x, trackY);
+            }
+
+            drawBlock(blockA);
+            drawBlock(blockB);
+
+            // Draw distance markers
+            ctx.fillStyle = '#a0aec0';
+            ctx.font = '12px Inter';
+            ctx.textAlign = 'center';
+            for (let i = 0; i <= TRACK_LENGTH; i += 2) {
+                const x = padding + i * scale;
+                ctx.fillText(i + 'm', x, trackY + 40);
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(x, trackY - 5);
+                ctx.lineTo(x, trackY + 5);
+                ctx.stroke();
+            }
+        }
+
+        // Animation loop
+        function animate() {
+            update();
+            draw();
+            if (isRunning) {
+                animationId = requestAnimationFrame(animate);
+            }
+        }
+
+        // Control handlers
+        document.getElementById('startBtn').addEventListener('click', () => {
+            if (!isRunning) {
+                isRunning = true;
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('pauseBtn').disabled = false;
+                animate();
+            }
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isRunning = false;
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            isRunning = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+
+            time = 0;
+            blockA.mass = parseFloat(document.getElementById('massA').value) || 1;
+            blockB.mass = parseFloat(document.getElementById('massB').value) || 1;
+            blockA.velocity = parseFloat(document.getElementById('velocityAInput').value) || 2;
+            blockB.velocity = parseFloat(document.getElementById('velocityBInput').value) || -1;
+            blockA.position = 2;
+            blockB.position = 6;
+
+            // Clear chart
+            chartData.labels = [];
+            chartData.datasets.forEach(dataset => dataset.data = []);
+            energyChart.update();
+
+            draw();
+
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+
+            // Update displays
+            document.getElementById('timeDisplay').textContent = '0.00 s';
+            document.getElementById('velocityA').textContent = blockA.velocity.toFixed(2) + ' m/s';
+            document.getElementById('velocityB').textContent = blockB.velocity.toFixed(2) + ' m/s';
+            const initialKE = kineticEnergy(blockA.mass, blockA.velocity) + kineticEnergy(blockB.mass, blockB.velocity);
+            document.getElementById('totalKE').textContent = initialKE.toFixed(2) + ' J';
+        });
+
+        // Update parameters when inputs change
+        ['massA', 'massB', 'velocityAInput', 'velocityBInput'].forEach(id => {
+            document.getElementById(id).addEventListener('change', (e) => {
+                if (!isRunning) {
+                    const value = parseFloat(e.target.value);
+                    if (isNaN(value)) {
+                        e.target.value = id.includes('mass') ? 1 : 0;
+                        return;
+                    }
+
+                    // Enforce limits
+                    if (id.includes('mass')) {
+                        e.target.value = Math.max(0.1, Math.min(10, value));
+                    } else {
+                        e.target.value = Math.max(-10, Math.min(10, value));
+                    }
+
+                    // Apply to blocks if not running
+                    if (id === 'massA') blockA.mass = parseFloat(e.target.value);
+                    if (id === 'massB') blockB.mass = parseFloat(e.target.value);
+                    if (id === 'velocityAInput') blockA.velocity = parseFloat(e.target.value);
+                    if (id === 'velocityBInput') blockB.velocity = parseFloat(e.target.value);
+
+                    // Update display
+                    document.getElementById('velocityA').textContent = blockA.velocity.toFixed(2) + ' m/s';
+                    document.getElementById('velocityB').textContent = blockB.velocity.toFixed(2) + ' m/s';
+                    const totalKE = kineticEnergy(blockA.mass, blockA.velocity) + kineticEnergy(blockB.mass, blockB.velocity);
+                    document.getElementById('totalKE').textContent = totalKE.toFixed(2) + ' J';
+
+                    draw();
+                }
+            });
+        });
+
+        // CanvasRenderingContext2D.roundRect polyfill for older browsers
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+                this.beginPath();
+                this.moveTo(x + radius, y);
+                this.lineTo(x + width - radius, y);
+                this.quadraticCurveTo(x + width, y, x + width, y + radius);
+                this.lineTo(x + width, y + height - radius);
+                this.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                this.lineTo(x + radius, y + height);
+                this.quadraticCurveTo(x, y + height, x, y + height - radius);
+                this.lineTo(x, y + radius);
+                this.quadraticCurveTo(x, y, x + radius, y);
+                this.closePath();
+                return this;
+            };
+        }
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Navbar shadow on scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('.nav');
+            if (window.scrollY > 50) {
+                nav.style.boxShadow = '0 2px 30px rgba(0, 0, 0, 0.1)';
+            } else {
+                nav.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.05)';
+            }
+        });
+
+        // Initial draw
+        draw();
+    </script>
+</body>
+</html>
