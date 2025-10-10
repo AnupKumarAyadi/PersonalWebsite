@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta charset="utf-8"/>
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+
+</head>
+<body>
+<div id="ggbApplet"></div>
+
+<a href="#" onclick="asd()">Hide point A</a>
+
+<script>
+    var params = {"appName": "classic", "width": 800, "height": 600, "showToolBar": false, "showAlgebraInput": false, "showMenuBar": false, "material_id":"snrd33wt" };
+    var applet = new GGBApplet(params, true);
+    window.addEventListener("load", function() {
+        applet.inject('ggbApplet');
+    });
+	function asd(){
+	ggbApplet.setAnimating('t', true);
+	ggbApplet.startAnimation();
+}
+ 
+</script>
+
+</body>
+</html>
