@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STEM for All</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <title>STEM for All - Learning Resources</title>
     <style>
         * {
             margin: 0;
@@ -11,523 +13,597 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
-            color: #2d3748;
-            overflow-x: hidden;
+        html {
+            scroll-behavior: smooth;
         }
 
-        .nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            padding: 1.5rem 5%;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
-            z-index: 1000;
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            border-bottom: 1px solid #e5e5e5;
+            padding: 30px 0;
+            margin-bottom: 50px;
+        }
+
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        h1 {
+            font-size: 2em;
+            font-weight: 600;
+            color: #1a1a1a;
         }
 
         .nav-links {
             display: flex;
-            gap: 2rem;
-            list-style: none;
+            gap: 30px;
+            align-items: center;
         }
 
         .nav-links a {
+            color: #666;
             text-decoration: none;
-            color: #4a5568;
-            font-weight: 500;
-            transition: color 0.3s;
+            font-size: 15px;
+            transition: color 0.2s;
+            cursor: pointer;
         }
 
         .nav-links a:hover {
-            color: #667eea;
+            color: #1a1a1a;
         }
 
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8rem 5% 4rem;
-            position: relative;
+        .nav-links a.active {
+            color: #1a1a1a;
+            font-weight: 500;
         }
 
-        .floating-shapes {
-            position: absolute;
+        .subtitle {
+            color: #666;
+            font-size: 1em;
+            margin-top: 8px;
+        }
+
+        .controls {
+            margin-bottom: 40px;
+        }
+
+        .search-box {
             width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 0;
+            padding: 12px 16px;
+            font-size: 15px;
+            border: 1px solid #e5e5e5;
+            background: #fafafa;
+            margin-bottom: 25px;
+            transition: all 0.2s;
         }
 
-        .shape {
-            position: absolute;
-            opacity: 0.1;
-            animation: float 20s infinite ease-in-out;
+        .search-box:focus {
+            outline: none;
+            border-color: #1a1a1a;
+            background: #ffffff;
         }
 
-        .shape:nth-child(1) {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 50%;
-            top: 20%;
-            left: 10%;
-            animation-delay: 0s;
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
-        .shape:nth-child(2) {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #f093fb, #f5576c);
-            border-radius: 30%;
-            top: 60%;
-            left: 80%;
-            animation-delay: -5s;
+        .category-btn {
+            padding: 8px 18px;
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
         }
 
-        .shape:nth-child(3) {
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-            border-radius: 20%;
-            top: 40%;
-            left: 70%;
-            animation-delay: -10s;
+        .category-btn:hover {
+            background: #f0f0f0;
+            border-color: #d0d0d0;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-30px) rotate(180deg); }
-        }
-
-        .hero-content {
-            max-width: 1200px;
-            text-align: center;
-            z-index: 1;
-            animation: fadeInUp 1s ease-out;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero p {
-            font-size: 1.3rem;
-            color: #718096;
-            max-width: 700px;
-            margin: 0 auto 3rem;
-            line-height: 1.8;
-        }
-
-        .cta-button {
-            display: inline-block;
-            padding: 1rem 2.5rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .category-btn.active {
+            background: #1a1a1a;
             color: white;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: 600;
-            transition: transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            border-color: #1a1a1a;
         }
 
-        .cta-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1px;
+            background: #e5e5e5;
+            border: 1px solid #e5e5e5;
+            margin-bottom: 50px;
+        }
+
+        .content-card {
+            background: white;
+            padding: 30px;
+            transition: background 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .content-card:hover {
+            background: #fafafa;
+        }
+
+        .content-card h3 {
+            color: #1a1a1a;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .content-category {
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            display: block;
+            font-weight: 500;
+        }
+
+        .content-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .content-link {
+            display: inline-block;
+            color: #1a1a1a;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 1px solid #1a1a1a;
+            transition: opacity 0.2s;
+        }
+
+        .content-card:hover .content-link {
+            opacity: 0.6;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 80px 20px;
+            color: #666;
+        }
+
+        .no-results h2 {
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            font-weight: 600;
         }
 
         .section {
-            padding: 5rem 5%;
-            max-width: 1200px;
-            margin: 0 auto;
+            display: none;
         }
 
-        .section-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 3rem;
-            position: relative;
-        }
-
-        .section-title::after {
-            content: '';
+        .section.active {
             display: block;
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            margin: 1rem auto 0;
-            border-radius: 2px;
-        }
-
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .project-card {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .project-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            transform: scaleX(0);
-            transition: transform 0.3s;
-        }
-
-        .project-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .project-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-        }
-
-        .project-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .project-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #2d3748;
-        }
-
-        .project-card p {
-            color: #718096;
-            line-height: 1.7;
-            margin-bottom: 1.5rem;
-        }
-
-        .project-link {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: gap 0.3s;
-        }
-
-        .project-link:hover {
-            gap: 1rem;
-        }
-
-        .articles-list {
-            display: grid;
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .article-card {
-            background: white;
-            border-radius: 20px;
-            padding: 2.5rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .article-card:hover {
-            transform: translateX(10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-        }
-
-        .article-number {
-            font-size: 3rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            min-width: 80px;
-        }
-
-        .article-content h3 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-            color: #2d3748;
-        }
-
-        .article-content p {
-            color: #718096;
-            line-height: 1.7;
-            margin-bottom: 1rem;
-        }
-
-        .article-meta {
-            display: flex;
-            gap: 1.5rem;
-            color: #a0aec0;
-            font-size: 0.9rem;
         }
 
         footer {
-            background: #2d3748;
-            color: white;
+            border-top: 1px solid #e5e5e5;
+            padding: 30px 0;
             text-align: center;
-            padding: 3rem 5%;
-            margin-top: 5rem;
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .social-links a {
-            color: white;
-            font-size: 1.5rem;
-            transition: transform 0.3s, color 0.3s;
-        }
-
-        .social-links a:hover {
-            transform: translateY(-3px);
-            color: #667eea;
+            color: #666;
+            font-size: 14px;
         }
 
         @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .hero p {
-                font-size: 1.1rem;
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
             }
 
             .nav-links {
-                display: none;
-            }
-
-            .article-card {
                 flex-direction: column;
-                text-align: center;
+                align-items: flex-start;
+                gap: 15px;
             }
 
-            .projects-grid {
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .content-grid {
                 grid-template-columns: 1fr;
-            }
-
-            .section {
-                padding: 3rem 5%;
             }
         }
     </style>
 </head>
 <body>
-    <nav class="nav">
-        <div class="logo">STEM for All</div>
-        <ul class="nav-links">
-            <li><a href="sdf.html">Simulations</a></li>
-            <li><a href="articles.html">Articles</a></li>
-            <li><a href="#contact">Contact</a></li>
-        </ul>
-    </nav>
-
-    <section class="hero">
-        <div class="floating-shapes">
-            <div class="shape"></div>
-            <div class="shape"></div>
-            <div class="shape"></div>
-        </div>
-        <div class="hero-content">
-            <h1>Hi, I'm Anup</h1>
-            <p>I am passionate about STEM and STEM education. Throughout high school, I had created many educational resources to help with studying science, particularly physics but also chemistry and mathematics. This website archives these resources, so it's available for everyone!</p>
-            <a href="#simulations" class="cta-button">Explore Learning Resources</a>
-        </div>
-    </section>
-
-    <section id="simulations" class="section">
-        <h2 class="section-title">Physics Simulations</h2>
-        <div class="projects-grid">
-            <div class="project-card">
-                <div class="project-icon">🌊</div>
-                <h3>Wave Interference</h3>
-                <p>An interactive simulation demonstrating wave superposition, interference patterns, and the principles of wave mechanics.</p>
-                <a href="#" class="project-link">View Simulation →</a>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div>
+                    <h1 id="pageTitle">Science Simulations</h1>
+                    <p class="subtitle" id="pageSubtitle">Below are some 50+ mathematics and physics simulations I created during highschool to help students better understand science. Most suitable for grade 9-12 students. I hope you find them useful! -Anup Kumar Ayadi</p>
+                </div>
+                <nav class="nav-links">
+                    <a href="#" class="nav-link active" data-section="simulations">Simulations</a>
+                    <a href="#" class="nav-link" data-section="articles">Science Articles</a>
+                    <a href="#end">Contact</a>
+                </nav>
             </div>
-            <div class="project-card">
-                <div class="project-icon">🎯</div>
-                <h3>Projectile Motion</h3>
-                <p>Explore the mathematics of projectile motion with adjustable parameters for velocity, angle, and gravity.</p>
-                <a href="#" class="project-link">View Simulation →</a>
-            </div>
-            <div class="project-card">
-                <div class="project-icon">⚛️</div>
-                <h3>Quantum Tunneling</h3>
-                <p>Visualize quantum mechanical tunneling through potential barriers with probability wave functions.</p>
-                <a href="#" class="project-link">View Simulation →</a>
-            </div>
-        </div>
-        <div style="text-align: center; margin-top: 3rem;">
-            <a href="sdf.html" class="cta-button">View All Simulations</a>
-        </div>
-    </section>
+        </header>
 
-    <section id="articles" class="section">
-        <h2 class="section-title">Science Articles</h2>
-        <div class="articles-list">
-            <div class="article-card">
-                <div class="article-number">01</div>
-                <div class="article-content">
-                    <h3>The Mathematics Behind Black Holes</h3>
-                    <p>An exploration of general relativity, event horizons, and the fascinating geometry of spacetime around massive objects.</p>
-                    <div class="article-meta">
-                        <span>📅 March 2024</span>
-                        <span>⏱ 8 min read</span>
-                    </div>
+        <!-- Simulations Section -->
+        <div id="simulations-section" class="section active">
+            <div class="controls">
+                <input type="text" id="searchBoxSimulations" class="search-box" placeholder="Search simulations...">
+                
+                <div class="category-filters" id="categoryFiltersSimulations">
+                    <button class="category-btn active" data-category="all">All</button>
                 </div>
             </div>
-            <div class="article-card">
-                <div class="article-number">02</div>
-                <div class="article-content">
-                    <h3>Quantum Computing for Beginners</h3>
-                    <p>Breaking down qubits, superposition, and entanglement in a way that makes quantum computing accessible to everyone.</p>
-                    <div class="article-meta">
-                        <span>📅 February 2024</span>
-                        <span>⏱ 6 min read</span>
-                    </div>
-                </div>
-            </div>
-            <div class="article-card">
-                <div class="article-number">03</div>
-                <div class="article-content">
-                    <h3>Climate Science: The Physics of Global Warming</h3>
-                    <p>Understanding greenhouse gases, radiative forcing, and the thermodynamics behind climate change through physics.</p>
-                    <div class="article-meta">
-                        <span>📅 January 2024</span>
-                        <span>⏱ 10 min read</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div style="text-align: center; margin-top: 3rem;">
-            <a href="articles.html" class="cta-button">View All Articles</a>
-        </div>
-    </section>
 
-    <footer id="contact">
-        <div class="footer-content">
-            <p>I try my best to get the science right, but if you catch something off, please let me know so I can correct it. Thank you!</p>
-            <br>
-            <h3>Contacts</h3>
-            <div class="social-links">
-                <a href="mailto:ayadianup37@gmail.com">📧</a>
-                <a href="https://www.linkedin.com/in/anup-kumar-ayadi-044519277">💼</a>
+            <div class="content-grid" id="simulationsGrid"></div>
+            
+            <div class="no-results" id="noResultsSimulations" style="display: none;">
+                <h2>No simulations found</h2>
+                <p>Try adjusting your search or filter criteria</p>
             </div>
-            <p style="margin-top: 2rem; color: #a0aec0;">© 2025 Anup Kumar Ayadi</p>
         </div>
-    </footer>
+
+        <!-- Articles Section -->
+        <div id="articles-section" class="section">
+            <div class="controls">
+                <input type="text" id="searchBoxArticles" class="search-box" placeholder="Search articles...">
+                
+                <div class="category-filters" id="categoryFiltersArticles">
+                    <button class="category-btn active" data-category="all">All</button>
+                </div>
+            </div>
+
+            <div class="content-grid" id="articlesGrid"></div>
+            
+            <div class="no-results" id="noResultsArticles" style="display: none;">
+                <h2>No articles found</h2>
+                <p>Try adjusting your search or filter criteria</p>
+            </div>
+        </div>
+
+        <footer id="end">
+            <p>Contact: anup.kumar.ayadi@gmail.com</a></p>
+        </footer>
+    </div>
 
     <script>
-        // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-
-        // Add scroll animation for cards
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.animation = 'fadeInUp 0.6s ease-out forwards';
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.project-card, .article-card').forEach(card => {
-            card.style.opacity = '0';
-            observer.observe(card);
-        });
-
-        // Navbar background on scroll
-        window.addEventListener('scroll', () => {
-            const nav = document.querySelector('.nav');
-            if (window.scrollY > 50) {
-                nav.style.boxShadow = '0 2px 30px rgba(0, 0, 0, 0.1)';
-            } else {
-                nav.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.05)';
+        // Sample simulations data
+        const simulations = [
+            {
+                title: "Projectile Motion",
+                category: "Mechanics",
+                description: "Explore the trajectory of projectiles with adjustable initial velocity and launch angle. Includes auto-zoom functionality.",
+                link: "simulations/projectile.html"
+            },
+            {
+                title: "Pendulum Simulation",
+                category: "Mechanics",
+                description: "Visualize simple harmonic motion with an interactive pendulum. Adjust length, mass, and initial angle.",
+                link: "simulations/pendulum.html"
+            },
+            {
+                title: "Parabola Grapher",
+                category: "Algebra",
+                description: "Interactive parabola with vertex form y = a(x-h)² + k. Adjust parameters to see real-time changes.",
+                link: "simulations/parabola.html"
+            },
+            {
+                title: "Trigonometric Functions",
+                category: "Trigonometry",
+                description: "Visualize sine, cosine, and tangent functions with adjustable amplitude, frequency, and phase shift.",
+                link: "simulations/trig-functions.html"
+            },
+            {
+                title: "Circle Geometry",
+                category: "Geometry",
+                description: "Explore properties of circles including radius, diameter, circumference, and area with interactive elements.",
+                link: "simulations/circle.html"
+            },
+            {
+                title: "Vector Addition",
+                category: "Vectors",
+                description: "Add and subtract vectors graphically. Visualize components and resultant vectors in 2D space.",
+                link: "simulations/vector-addition.html"
+            },
+            {
+                title: "Polynomial Functions",
+                category: "Algebra",
+                description: "Explore polynomial functions and their roots, turning points, and end behavior.",
+                link: "simulations/polynomials.html"
+            },
+            {
+                title: "Unit Circle",
+                category: "Trigonometry",
+                description: "Interactive unit circle showing sine, cosine, and tangent values at different angles.",
+                link: "simulations/unit-circle.html"
+            },
+            {
+                title: "Pythagorean Theorem",
+                category: "Geometry",
+                description: "Visual proof and interactive demonstration of the Pythagorean theorem with right triangles.",
+                link: "simulations/pythagorean.html"
+            },
+            {
+                title: "Newton's Laws",
+                category: "Mechanics",
+                description: "Interactive demonstration of Newton's three laws of motion with force diagrams.",
+                link: "simulations/newtons-laws.html"
             }
+        ];
+
+        // Sample articles data
+        const articles = [
+            {
+                title: "Quantum Entanglement Explained",
+                category: "Physics",
+                description: "A comprehensive guide to understanding quantum entanglement and its implications for modern physics and technology.",
+                link: "articles/quantum-entanglement.html"
+            },
+            {
+                title: "The Structure of DNA",
+                category: "Biology",
+                description: "Exploring the double helix structure of DNA and how it stores genetic information in all living organisms.",
+                link: "articles/dna-structure.html"
+            },
+            {
+                title: "Climate Change and Ocean Currents",
+                category: "Environmental Science",
+                description: "How rising global temperatures are affecting ocean circulation patterns and marine ecosystems worldwide.",
+                link: "articles/climate-ocean.html"
+            },
+            {
+                title: "The Periodic Table Evolution",
+                category: "Chemistry",
+                description: "The history and development of the periodic table from Mendeleev to modern discoveries of new elements.",
+                link: "articles/periodic-table.html"
+            },
+            {
+                title: "Black Holes and Event Horizons",
+                category: "Astronomy",
+                description: "Understanding the physics of black holes, event horizons, and what happens when matter crosses this boundary.",
+                link: "articles/black-holes.html"
+            },
+            {
+                title: "CRISPR Gene Editing Technology",
+                category: "Biology",
+                description: "An overview of CRISPR-Cas9 technology and its revolutionary impact on genetic engineering and medicine.",
+                link: "articles/crispr.html"
+            },
+            {
+                title: "The Standard Model of Particle Physics",
+                category: "Physics",
+                description: "Breaking down the fundamental particles and forces that make up our universe according to the Standard Model.",
+                link: "articles/standard-model.html"
+            },
+            {
+                title: "Renewable Energy Technologies",
+                category: "Environmental Science",
+                description: "Comparing solar, wind, and hydroelectric power technologies and their role in sustainable energy future.",
+                link: "articles/renewable-energy.html"
+            }
+        ];
+
+        let filteredSimulations = [...simulations];
+        let filteredArticles = [...articles];
+
+        // Navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = e.target.dataset.section;
+                if (section) {
+                    switchSection(section);
+                }
+            });
         });
+
+        function switchSection(section) {
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.section === section) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Show/hide sections
+            document.querySelectorAll('.section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            document.getElementById(`${section}-section`).classList.add('active');
+
+            // Update header
+            if (section === 'simulations') {
+                document.getElementById('pageTitle').textContent = 'Science Simulations';
+                document.getElementById('pageSubtitle').textContent = 'Below are some 50+ mathematics and physics simulations I created during highschool to help students better understand science. Most suitable for grade 9-12 students. I hope you find them useful! -Anup Kumar Ayadi';
+            } else if (section === 'articles') {
+                document.getElementById('pageTitle').textContent = 'Science Articles';
+                document.getElementById('pageSubtitle').textContent = 'Below are some 30+ in-depth articles on physics, chemistry, and math that I wrote during highschool. Most suitable for grade 9-12 students. I hope you find them useful! -Anup Kumar Ayadi';
+            }
+        }
+
+        // Simulations functionality
+        const simulationCategories = ['all', ...new Set(simulations.map(sim => sim.category))];
+
+        function initSimulationCategories() {
+            const filtersContainer = document.getElementById('categoryFiltersSimulations');
+            filtersContainer.innerHTML = simulationCategories.map(cat => 
+                `<button class="category-btn ${cat === 'all' ? 'active' : ''}" data-category="${cat}">
+                    ${cat.charAt(0).toUpperCase() + cat.slice(1)}
+                </button>`
+            ).join('');
+
+            document.querySelectorAll('#categoryFiltersSimulations .category-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => filterByCategory(e, 'simulations'));
+            });
+        }
+
+        function renderSimulations(sims) {
+            const grid = document.getElementById('simulationsGrid');
+            const noResults = document.getElementById('noResultsSimulations');
+
+            if (sims.length === 0) {
+                grid.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            noResults.style.display = 'none';
+
+            grid.innerHTML = sims.map(sim => `
+                <a href="${sim.link}" class="content-card" target="_blank">
+                    <span class="content-category">${sim.category}</span>
+                    <h3>${sim.title}</h3>
+                    <p class="content-description">${sim.description}</p>
+                    <span class="content-link">View Simulation →</span>
+                </a>
+            `).join('');
+        }
+
+        // Articles functionality
+        const articleCategories = ['all', ...new Set(articles.map(art => art.category))];
+
+        function initArticleCategories() {
+            const filtersContainer = document.getElementById('categoryFiltersArticles');
+            filtersContainer.innerHTML = articleCategories.map(cat => 
+                `<button class="category-btn ${cat === 'all' ? 'active' : ''}" data-category="${cat}">
+                    ${cat.charAt(0).toUpperCase() + cat.slice(1)}
+                </button>`
+            ).join('');
+
+            document.querySelectorAll('#categoryFiltersArticles .category-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => filterByCategory(e, 'articles'));
+            });
+        }
+
+        function renderArticles(arts) {
+            const grid = document.getElementById('articlesGrid');
+            const noResults = document.getElementById('noResultsArticles');
+
+            if (arts.length === 0) {
+                grid.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            noResults.style.display = 'none';
+
+            grid.innerHTML = arts.map(art => `
+                <a href="${art.link}" class="content-card" target="_blank">
+                    <span class="content-category">${art.category}</span>
+                    <h3>${art.title}</h3>
+                    <p class="content-description">${art.description}</p>
+                    <span class="content-link">Read Article →</span>
+                </a>
+            `).join('');
+        }
+
+        // Filter by category
+        function filterByCategory(e, type) {
+            const category = e.target.dataset.category;
+            const section = type === 'simulations' ? 'Simulations' : 'Articles';
+            
+            // Update active button
+            document.querySelectorAll(`#categoryFilters${section} .category-btn`).forEach(btn => {
+                btn.classList.remove('active');
+            });
+            e.target.classList.add('active');
+
+            const data = type === 'simulations' ? simulations : articles;
+            let filtered = category === 'all' ? [...data] : data.filter(item => item.category === category);
+
+            const searchTerm = document.getElementById(`searchBox${section}`).value;
+            if (searchTerm) {
+                filtered = filtered.filter(item =>
+                    item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    item.description.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }
+
+            if (type === 'simulations') {
+                filteredSimulations = filtered;
+                renderSimulations(filteredSimulations);
+            } else {
+                filteredArticles = filtered;
+                renderArticles(filteredArticles);
+            }
+        }
+
+        // Search functionality for simulations
+        document.getElementById('searchBoxSimulations').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const activeCategory = document.querySelector('#categoryFiltersSimulations .category-btn.active').dataset.category;
+
+            let filtered = activeCategory === 'all' ? [...simulations] : 
+                           simulations.filter(sim => sim.category === activeCategory);
+
+            if (searchTerm) {
+                filtered = filtered.filter(sim =>
+                    sim.title.toLowerCase().includes(searchTerm) ||
+                    sim.description.toLowerCase().includes(searchTerm) ||
+                    sim.category.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            filteredSimulations = filtered;
+            renderSimulations(filteredSimulations);
+        });
+
+        // Search functionality for articles
+        document.getElementById('searchBoxArticles').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const activeCategory = document.querySelector('#categoryFiltersArticles .category-btn.active').dataset.category;
+
+            let filtered = activeCategory === 'all' ? [...articles] : 
+                           articles.filter(art => art.category === activeCategory);
+
+            if (searchTerm) {
+                filtered = filtered.filter(art =>
+                    art.title.toLowerCase().includes(searchTerm) ||
+                    art.description.toLowerCase().includes(searchTerm) ||
+                    art.category.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            filteredArticles = filtered;
+            renderArticles(filteredArticles);
+        });
+
+        // Initialize
+        initSimulationCategories();
+        initArticleCategories();
+        renderSimulations(simulations);
+        renderArticles(articles);
     </script>
 </body>
 </html>
