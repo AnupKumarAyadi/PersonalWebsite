@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elastic Collision Simulation</title>
+    <title>Pendulum Simulation</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -131,14 +131,14 @@
         .canvas-container {
             position: relative;
             width: 100%;
-            height: 300px;
+            height: 400px;
             background: #f7fafc;
             border-radius: 15px;
             margin-bottom: 2rem;
             overflow: hidden;
         }
 
-        #simulationCanvas {
+        #pendulumCanvas {
             width: 100%;
             height: 100%;
             display: block;
@@ -382,7 +382,7 @@
             }
 
             .canvas-container {
-                height: 250px;
+                height: 350px;
             }
 
             .theory-section {
@@ -393,7 +393,7 @@
 </head>
 <body>
     <nav class="nav">
-        <a href="index.html" class="logo">STEM for All</a>
+        <a href="../index.html" class="logo">STEM for All</a>
         <ul class="nav-links">
             <li><a href="../index.html">About</a></li>
             <li><a href="../simulations.html">Simulations</a></li>
@@ -403,8 +403,8 @@
     </nav>
 
     <div class="header">
-        <h1>💥 Elastic Collision Simulation</h1>
-        <p>Explore the physics of elastic collisions between two blocks on a frictionless track with real-time energy visualization</p>
+        <h1>⏱️ Simple Pendulum Simulation</h1>
+        <p>Explore the physics of pendulum motion with accurate period calculations using 8th-order approximation</p>
     </div>
 
     <div class="container">
@@ -415,45 +415,53 @@
                     <div class="stat-value" id="timeDisplay">0.00 s</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Block A Velocity</div>
-                    <div class="stat-value" id="velocityA">0.00 m/s</div>
+                    <div class="stat-label">Angle</div>
+                    <div class="stat-value" id="angleDisplay">0.00°</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Block B Velocity</div>
-                    <div class="stat-value" id="velocityB">0.00 m/s</div>
+                    <div class="stat-label">Angular Velocity</div>
+                    <div class="stat-value" id="omegaDisplay">0.00 rad/s</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Total KE</div>
-                    <div class="stat-value" id="totalKE">0.00 J</div>
+                    <div class="stat-label">Period (Calculated)</div>
+                    <div class="stat-value" id="periodDisplay">0.00 s</div>
                 </div>
             </div>
 
             <div class="canvas-container">
-                <canvas id="simulationCanvas"></canvas>
+                <canvas id="pendulumCanvas"></canvas>
             </div>
 
             <div class="controls-section">
                 <div class="control-group">
-                    <h3>Block A (Red)</h3>
+                    <h3>Pendulum Properties</h3>
                     <div class="input-group">
-                        <label for="massA">Mass (kg)</label>
-                        <input type="number" id="massA" min="0.1" max="10" step="0.1" value="1">
+                        <label for="length">String Length (m)</label>
+                        <input type="number" id="length" min="0.1" max="5" step="0.1" value="1.0">
+                        <div class="input-display">
+                            <span>Min: 0.1m</span>
+                            <span>Max: 5.0m</span>
+                        </div>
                     </div>
                     <div class="input-group">
-                        <label for="velocityAInput">Initial Velocity (m/s)</label>
-                        <input type="number" id="velocityAInput" min="-10" max="10" step="0.1" value="2">
+                        <label for="angle">Initial Release Angle (degrees)</label>
+                        <input type="number" id="angle" min="1" max="179" step="1" value="30">
+                        <div class="input-display">
+                            <span>Min: 1°</span>
+                            <span>Max: 179°</span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="control-group">
-                    <h3>Block B (Blue)</h3>
+                    <h3>Physics Constants</h3>
                     <div class="input-group">
-                        <label for="massB">Mass (kg)</label>
-                        <input type="number" id="massB" min="0.1" max="10" step="0.1" value="1">
+                        <label>Gravity (g)</label>
+                        <input type="text" value="9.81 m/s²" disabled>
                     </div>
                     <div class="input-group">
-                        <label for="velocityBInput">Initial Velocity (m/s)</label>
-                        <input type="number" id="velocityBInput" min="-10" max="10" step="0.1" value="-1">
+                        <label>Approximation Order</label>
+                        <input type="text" value="8th power series" disabled>
                     </div>
                 </div>
             </div>
@@ -466,56 +474,71 @@
         </div>
 
         <div class="sim-section">
-            <h3 style="margin-bottom: 1rem; color: #2d3748;">Kinetic Energy Over Time</h3>
+            <h3 style="margin-bottom: 1rem; color: #2d3748;">Angular Acceleration vs Angular Displacement</h3>
             <div class="chart-container">
-                <canvas id="energyChart"></canvas>
+                <canvas id="accelChart"></canvas>
             </div>
         </div>
 
         <div class="theory-section">
-            <h2>Understanding Elastic Collisions</h2>
+            <h2>Understanding Simple Pendulum Motion</h2>
             
-            <p>An elastic collision is a type of collision where both momentum and kinetic energy are conserved. This simulation demonstrates the behavior of two blocks colliding elastically on a frictionless track with walls at both ends.</p>
+            <p>A simple pendulum consists of a mass (bob) attached to a rigid, massless string that swings under the influence of gravity. The motion is periodic and provides an excellent demonstration of harmonic motion.</p>
 
-            <h3>Conservation Laws</h3>
-            <p>In an elastic collision, two fundamental principles govern the motion:</p>
-
-            <div class="formula-box">
-                <p style="margin-bottom: 0.5rem; font-weight: 600;">Conservation of Momentum:</p>
-                <div class="formula">m₁v₁ᵢ + m₂v₂ᵢ = m₁v₁f + m₂v₂f</div>
-            </div>
+            <h3>Equation of Motion</h3>
+            <p>The angular acceleration of a pendulum is given by:</p>
 
             <div class="formula-box">
-                <p style="margin-bottom: 0.5rem; font-weight: 600;">Conservation of Kinetic Energy:</p>
-                <div class="formula">½m₁v₁ᵢ² + ½m₂v₂ᵢ² = ½m₁v₁f² + ½m₂v₂f²</div>
+                <div class="formula">α = -(g/L) × sin(θ)</div>
+                <p style="text-align: center; margin-top: 0.5rem; font-size: 0.9rem; color: #718096;">where α is angular acceleration, g is gravity, L is length, and θ is angle</p>
             </div>
 
-            <h3>Final Velocities After Collision</h3>
-            <p>Using these conservation laws, we can derive the final velocities after collision:</p>
+            <h3>Period Calculation with Series Expansion</h3>
+            <p>The exact period of a pendulum for any amplitude can be expressed using complete elliptic integrals of the first kind. However, this can be approximated using a power series expansion in terms of the initial angle θ₀ (in radians):</p>
 
             <div class="formula-box">
-                <div class="formula">v₁f = ((m₁ - m₂)v₁ᵢ + 2m₂v₂ᵢ) / (m₁ + m₂)</div>
-                <div class="formula" style="margin-top: 0.5rem;">v₂f = ((m₂ - m₁)v₂ᵢ + 2m₁v₁ᵢ) / (m₁ + m₂)</div>
+                <div class="formula">T = T₀ × [1 + (1/16)θ₀² + (11/3072)θ₀⁴ + (173/737280)θ₀⁶ + (22931/1321205760)θ₀⁸ + ...]</div>
+                <p style="text-align: center; margin-top: 0.5rem; font-size: 0.9rem; color: #718096;">where T₀ = 2π√(L/g) is the small angle approximation and θ₀ is in radians</p>
             </div>
 
-            <h3>Special Cases</h3>
-            <p><strong>Equal Masses (m₁ = m₂):</strong> When two objects of equal mass collide elastically, they exchange velocities. The first object takes on the velocity of the second, and vice versa.</p>
+            <p>This 8th-order approximation provides excellent accuracy for angles up to about 90 degrees. The coefficients in this expansion are:</p>
+            <ul style="margin-left: 2rem; color: #4a5568;">
+                <li>2nd order: 1/16 = 0.0625</li>
+                <li>4th order: 11/3072 ≈ 0.003580729</li>
+                <li>6th order: 173/737280 ≈ 0.000234623</li>
+                <li>8th order: 22931/1321205760 ≈ 0.000017353</li>
+            </ul>
 
-            <p><strong>One Object Initially at Rest:</strong> If one object is stationary and the other moves toward it, after collision both objects will generally be in motion, with the final velocities depending on the mass ratio.</p>
+            <h3>Elliptic Integral Connection</h3>
+            <p>The exact solution for the period involves the complete elliptic integral of the first kind K(k), where:</p>
+            
+            <div class="formula-box">
+                <div class="formula">T = 4√(L/g) × K(sin(θ₀/2))</div>
+                <p style="text-align: center; margin-top: 0.5rem; font-size: 0.9rem; color: #718096;">The series expansion above approximates this elliptic integral</p>
+            </div>
 
-            <p><strong>Wall Collisions:</strong> When a block collides with the immovable walls at the ends of the track, its velocity reverses (multiplied by -1), representing a perfect elastic collision with an object of infinite mass.</p>
+            <h3>Angular Acceleration vs Displacement</h3>
+            <p>The relationship between angular acceleration and angular displacement is nonlinear due to the sine function. The graph shows this relationship, which differs from simple harmonic motion where the relationship would be perfectly linear.</p>
 
             <div class="info-box">
-                <p><strong>💡 Key Insight:</strong> The total kinetic energy remains constant throughout the simulation (shown in the yellow line on the graph). This is the defining characteristic of elastic collisions. In real-world scenarios, some energy is always lost to heat, sound, and deformation, making perfectly elastic collisions an idealization.</p>
+                <p><strong>💡 Key Insight:</strong> For small angles (less than about 15°), sin(θ) ≈ θ, and the pendulum exhibits simple harmonic motion with a period independent of amplitude. For larger angles, the period increases with amplitude, requiring the higher-order terms in our calculation.</p>
+            </div>
+
+            <h3>Energy Conservation</h3>
+            <p>Throughout the motion, mechanical energy is conserved (assuming no friction). At the highest point, all energy is potential. At the lowest point, all energy is kinetic. The exchange between these forms drives the oscillation.</p>
+
+            <div class="formula-box">
+                <div class="formula">E = mgh + (1/2)Iω²</div>
+                <p style="text-align: center; margin-top: 0.5rem; font-size: 0.9rem; color: #718096;">where E is total energy, m is mass, h is height, I is moment of inertia, and ω is angular velocity</p>
             </div>
 
             <h3>Applications</h3>
-            <p>Elastic collisions are approximated in many real-world scenarios including:</p>
+            <p>Pendulum physics has numerous real-world applications:</p>
             <ul style="margin-left: 2rem; color: #4a5568;">
-                <li>Billiard ball collisions</li>
-                <li>Atomic and subatomic particle interactions</li>
-                <li>Gas molecule collisions in ideal gases</li>
-                <li>Newton's cradle demonstrations</li>
+                <li>Grandfather clocks and timekeeping devices</li>
+                <li>Seismometers for detecting earthquakes</li>
+                <li>Measuring gravitational acceleration</li>
+                <li>Playground swings and amusement park rides</li>
             </ul>
         </div>
     </div>
@@ -535,71 +558,43 @@
 
     <script>
         // Canvas setup
-        const canvas = document.getElementById('simulationCanvas');
+        const canvas = document.getElementById('pendulumCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Simulation parameters
-        const TRACK_LENGTH = 10; // meters
-        const INITIAL_SEPARATION = 4; // meters
+        // Physics constants
+        const GRAVITY = 9.81; // m/s²
         const TIME_STEP = 0.016; // ~60 FPS
-        const SCALE_FACTOR = 0.75; // Scale for better visualization
 
         // Simulation state
         let animationId = null;
         let isRunning = false;
         let time = 0;
 
-        // Block properties
-        let blockA = {
-            mass: 1,
-            velocity: 2,
-            position: 2,
-            size: 40,
-            color: '#fa709a'
-        };
-
-        let blockB = {
-            mass: 1,
-            velocity: -1,
-            position: 6,
-            size: 40,
-            color: '#667eea'
-        };
+        // Pendulum properties
+        let length = 1.0; // meters
+        let angle = Math.PI / 6; // radians (30 degrees)
+        let angularVelocity = 0;
+        let angularAcceleration = 0;
+        let initialAngle = angle;
 
         // Chart setup
         const chartData = {
             labels: [],
             datasets: [
                 {
-                    label: 'Block A KE (J)',
-                    data: [],
-                    borderColor: '#fa709a',
-                    backgroundColor: 'rgba(250, 112, 154, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                },
-                {
-                    label: 'Block B KE (J)',
+                    label: 'Angular Acceleration (rad/s²)',
                     data: [],
                     borderColor: '#667eea',
                     backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                },
-                {
-                    label: 'Total KE (J)',
-                    data: [],
-                    borderColor: '#fee140',
-                    backgroundColor: 'rgba(254, 225, 64, 0.1)',
-                    tension: 0.4,
-                    borderWidth: 3,
-                    fill: false
+                    tension: 0,
+                    pointRadius: 3,
+                    pointHoverRadius: 5
                 }
             ]
         };
 
-        const energyChart = new Chart(document.getElementById('energyChart'), {
-            type: 'line',
+        const accelChart = new Chart(document.getElementById('accelChart'), {
+            type: 'scatter',
             data: chartData,
             options: {
                 responsive: true,
@@ -607,24 +602,28 @@
                 plugins: {
                     legend: {
                         position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `α = ${context.parsed.y.toFixed(3)} rad/s² at θ = ${context.parsed.x.toFixed(3)} rad`;
+                            }
+                        }
                     }
                 },
                 scales: {
                     x: {
                         title: {
                             display: true,
-                            text: 'Time (s)'
+                            text: 'Angular Displacement (radians)'
                         },
-                        ticks: {
-                            maxTicksLimit: 10
-                        }
+                        type: 'linear'
                     },
                     y: {
                         title: {
                             display: true,
-                            text: 'Kinetic Energy (J)'
-                        },
-                        beginAtZero: true
+                            text: 'Angular Acceleration (rad/s²)'
+                        }
                     }
                 }
             }
@@ -638,167 +637,132 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        // Calculate kinetic energy
-        function kineticEnergy(mass, velocity) {
-            return 0.5 * mass * velocity * velocity;
+        // Calculate period using 8th order approximation
+        // Using series expansion in terms of theta0 directly
+        function calculatePeriod(L, theta0) {
+            const T0 = 2 * Math.PI * Math.sqrt(L / GRAVITY);
+            
+            // Series expansion coefficients for period in terms of theta0
+            const theta2 = theta0 * theta0;
+            const theta4 = theta2 * theta2;
+            const theta6 = theta4 * theta2;
+            const theta8 = theta4 * theta4;
+            
+            const correction = 1 + 
+                (1/16) * theta2 +
+                (11/3072) * theta4 +
+                (173/737280) * theta6 +
+                (22931/1321205760) * theta8;
+            
+            return T0 * correction;
         }
 
-        // Elastic collision between blocks
-        function collideBlocks() {
-            const m1 = blockA.mass;
-            const m2 = blockB.mass;
-            const v1 = blockA.velocity;
-            const v2 = blockB.velocity;
-
-            const v1f = ((m1 - m2) * v1 + 2 * m2 * v2) / (m1 + m2);
-            const v2f = ((m2 - m1) * v2 + 2 * m1 * v1) / (m1 + m2);
-
-            blockA.velocity = v1f;
-            blockB.velocity = v2f;
-        }
-
-        // Check for collisions
-        function checkCollisions() {
-            // Check wall collisions
-            const blockARadius = blockA.size / 2 / (canvas.width / TRACK_LENGTH);
-            const blockBRadius = blockB.size / 2 / (canvas.width / TRACK_LENGTH);
-
-            if (blockA.position - blockARadius <= 0) {
-                blockA.position = blockARadius;
-                blockA.velocity = -blockA.velocity;
-            }
-            if (blockA.position + blockARadius >= TRACK_LENGTH) {
-                blockA.position = TRACK_LENGTH - blockARadius;
-                blockA.velocity = -blockA.velocity;
-            }
-
-            if (blockB.position - blockBRadius <= 0) {
-                blockB.position = blockBRadius;
-                blockB.velocity = -blockB.velocity;
-            }
-            if (blockB.position + blockBRadius >= TRACK_LENGTH) {
-                blockB.position = TRACK_LENGTH - blockBRadius;
-                blockB.velocity = -blockB.velocity;
-            }
-
-            // Check block-to-block collision
-            const distance = Math.abs(blockB.position - blockA.position);
-            const minDistance = (blockARadius + blockBRadius);
-
-            if (distance <= minDistance) {
-                // Separate blocks to prevent overlap
-                const overlap = minDistance - distance;
-                if (blockA.position < blockB.position) {
-                    blockA.position -= overlap / 2;
-                    blockB.position += overlap / 2;
-                } else {
-                    blockA.position += overlap / 2;
-                    blockB.position -= overlap / 2;
-                }
-                collideBlocks();
-            }
-        }
-
-        // Update simulation
+        // Update physics
         function update() {
             time += TIME_STEP;
 
-            blockA.position += blockA.velocity * TIME_STEP;
-            blockB.position += blockB.velocity * TIME_STEP;
+            // Calculate angular acceleration
+            angularAcceleration = -(GRAVITY / length) * Math.sin(angle);
 
-            checkCollisions();
+            // Update angular velocity and angle using Euler method
+            angularVelocity += angularAcceleration * TIME_STEP;
+            angle += angularVelocity * TIME_STEP;
 
-            // Update display
+            // Update displays
             document.getElementById('timeDisplay').textContent = time.toFixed(2) + ' s';
-            document.getElementById('velocityA').textContent = blockA.velocity.toFixed(2) + ' m/s';
-            document.getElementById('velocityB').textContent = blockB.velocity.toFixed(2) + ' m/s';
+            document.getElementById('angleDisplay').textContent = (angle * 180 / Math.PI).toFixed(2) + '°';
+            document.getElementById('omegaDisplay').textContent = angularVelocity.toFixed(2) + ' rad/s';
 
-            const keA = kineticEnergy(blockA.mass, blockA.velocity);
-            const keB = kineticEnergy(blockB.mass, blockB.velocity);
-            const totalKE = keA + keB;
-
-            document.getElementById('totalKE').textContent = totalKE.toFixed(2) + ' J';
-
-            // Update chart (sample every 10 frames to reduce clutter)
-            if (Math.floor(time / TIME_STEP) % 10 === 0) {
-                chartData.labels.push(time.toFixed(2));
-                chartData.datasets[0].data.push(keA);
-                chartData.datasets[1].data.push(keB);
-                chartData.datasets[2].data.push(totalKE);
+            // Update chart (sample periodically to avoid clutter)
+            if (Math.floor(time / TIME_STEP) % 3 === 0) {
+                chartData.datasets[0].data.push({
+                    x: angle,
+                    y: angularAcceleration
+                });
 
                 // Limit data points
-                if (chartData.labels.length > 100) {
-                    chartData.labels.shift();
-                    chartData.datasets.forEach(dataset => dataset.data.shift());
+                if (chartData.datasets[0].data.length > 200) {
+                    chartData.datasets[0].data.shift();
                 }
 
-                energyChart.update('none');
+                accelChart.update('none');
             }
         }
 
-        // Draw simulation
+        // Draw pendulum
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            const padding = 40;
-            const trackY = canvas.height / 2;
-            const trackWidth = canvas.width - 2 * padding;
-            const scale = trackWidth / TRACK_LENGTH;
+            const centerX = canvas.width / 2;
+            const centerY = 80;
+            
+            // Scale length to fit canvas nicely
+            const pixelLength = Math.min(canvas.height - 150, 250) * (length / 5);
+            
+            // Calculate bob position
+            const bobX = centerX + pixelLength * Math.sin(angle);
+            const bobY = centerY + pixelLength * Math.cos(angle);
 
-            // Draw track
-            ctx.strokeStyle = '#cbd5e0';
-            ctx.lineWidth = 4;
+            // Draw pivot point
+            ctx.fillStyle = '#4a5568';
             ctx.beginPath();
-            ctx.moveTo(padding, trackY);
-            ctx.lineTo(canvas.width - padding, trackY);
+            ctx.arc(centerX, centerY, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw string
+            ctx.strokeStyle = '#2d3748';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(bobX, bobY);
             ctx.stroke();
 
-            // Draw walls
-            ctx.fillStyle = '#4a5568';
-            ctx.fillRect(padding - 10, trackY - 30, 10, 60);
-            ctx.fillRect(canvas.width - padding, trackY - 30, 10, 60);
+            // Draw bob
+            const bobRadius = 20;
+            
+            // Shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+            ctx.beginPath();
+            ctx.ellipse(bobX, bobY + bobRadius + 5, bobRadius * 0.8, bobRadius * 0.3, 0, 0, Math.PI * 2);
+            ctx.fill();
 
-            // Draw blocks
-            function drawBlock(block) {
-                const x = padding + block.position * scale;
-                const size = Math.max(30, Math.min(60, 20 + block.mass * 20));
-                
-                ctx.fillStyle = block.color;
-                ctx.beginPath();
-                ctx.roundRect(x - size / 2, trackY - size / 2, size, size, 8);
-                ctx.fill();
+            // Bob body
+            const gradient = ctx.createRadialGradient(bobX - 5, bobY - 5, 0, bobX, bobY, bobRadius);
+            gradient.addColorStop(0, '#764ba2');
+            gradient.addColorStop(1, '#667eea');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(bobX, bobY, bobRadius, 0, Math.PI * 2);
+            ctx.fill();
 
-                // Draw shadow
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-                ctx.beginPath();
-                ctx.ellipse(x, trackY + size / 2 + 5, size / 2, 8, 0, 0, Math.PI * 2);
-                ctx.fill();
+            // Bob highlight
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.arc(bobX - 6, bobY - 6, 8, 0, Math.PI * 2);
+            ctx.fill();
 
-                // Draw mass label
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 14px Inter';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(block.mass.toFixed(1) + ' kg', x, trackY);
-            }
+            // Draw arc showing angle
+            ctx.strokeStyle = 'rgba(102, 126, 234, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 40, 0, angle);
+            ctx.stroke();
 
-            drawBlock(blockA);
-            drawBlock(blockB);
+            // Draw vertical reference line
+            ctx.strokeStyle = 'rgba(160, 174, 192, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX, centerY + pixelLength + 20);
+            ctx.stroke();
+            ctx.setLineDash([]);
 
-            // Draw distance markers
-            ctx.fillStyle = '#a0aec0';
-            ctx.font = '12px Inter';
+            // Draw angle label
+            ctx.fillStyle = '#667eea';
+            ctx.font = 'bold 14px Inter';
             ctx.textAlign = 'center';
-            for (let i = 0; i <= TRACK_LENGTH; i += 2) {
-                const x = padding + i * scale;
-                ctx.fillText(i + 'm', x, trackY + 40);
-                ctx.strokeStyle = '#e2e8f0';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(x, trackY - 5);
-                ctx.lineTo(x, trackY + 5);
-                ctx.stroke();
-            }
+            ctx.fillText((angle * 180 / Math.PI).toFixed(1) + '°', centerX + 60, centerY + 30);
         }
 
         // Animation loop
@@ -816,12 +780,8 @@
                 isRunning = true;
                 document.getElementById('startBtn').disabled = true;
                 document.getElementById('pauseBtn').disabled = false;
-                
-                // Disable input fields
-                document.getElementById('massA').disabled = true;
-                document.getElementById('massB').disabled = true;
-                document.getElementById('velocityAInput').disabled = true;
-                document.getElementById('velocityBInput').disabled = true;
+                document.getElementById('length').disabled = true;
+                document.getElementById('angle').disabled = true;
                 
                 animate();
             }
@@ -831,12 +791,6 @@
             isRunning = false;
             document.getElementById('startBtn').disabled = false;
             document.getElementById('pauseBtn').disabled = true;
-            
-            // Re-enable input fields
-            document.getElementById('massA').disabled = false;
-            document.getElementById('massB').disabled = false;
-            document.getElementById('velocityAInput').disabled = false;
-            document.getElementById('velocityBInput').disabled = false;
             
             if (animationId) {
                 cancelAnimationFrame(animationId);
@@ -850,82 +804,65 @@
             }
 
             time = 0;
-            blockA.mass = parseFloat(document.getElementById('massA').value) || 1;
-            blockB.mass = parseFloat(document.getElementById('massB').value) || 1;
-            blockA.velocity = parseFloat(document.getElementById('velocityAInput').value) || 2;
-            blockB.velocity = parseFloat(document.getElementById('velocityBInput').value) || -1;
-            blockA.position = 2;
-            blockB.position = 6;
+            length = parseFloat(document.getElementById('length').value) || 1.0;
+            const angleDeg = parseFloat(document.getElementById('angle').value) || 30;
+            angle = angleDeg * Math.PI / 180;
+            initialAngle = angle;
+            angularVelocity = 0;
+            angularAcceleration = 0;
+
+            // Calculate and display period
+            const period = calculatePeriod(length, initialAngle);
+            document.getElementById('periodDisplay').textContent = period.toFixed(3) + ' s';
 
             // Clear chart
-            chartData.labels = [];
-            chartData.datasets.forEach(dataset => dataset.data = []);
-            energyChart.update();
+            chartData.datasets[0].data = [];
+            accelChart.update();
 
             draw();
 
             document.getElementById('startBtn').disabled = false;
             document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('length').disabled = false;
+            document.getElementById('angle').disabled = false;
 
             // Update displays
             document.getElementById('timeDisplay').textContent = '0.00 s';
-            document.getElementById('velocityA').textContent = blockA.velocity.toFixed(2) + ' m/s';
-            document.getElementById('velocityB').textContent = blockB.velocity.toFixed(2) + ' m/s';
-            const initialKE = kineticEnergy(blockA.mass, blockA.velocity) + kineticEnergy(blockB.mass, blockB.velocity);
-            document.getElementById('totalKE').textContent = initialKE.toFixed(2) + ' J';
+            document.getElementById('angleDisplay').textContent = angleDeg.toFixed(2) + '°';
+            document.getElementById('omegaDisplay').textContent = '0.00 rad/s';
         });
 
         // Update parameters when inputs change
-        ['massA', 'massB', 'velocityAInput', 'velocityBInput'].forEach(id => {
+        ['length', 'angle'].forEach(id => {
             document.getElementById(id).addEventListener('change', (e) => {
                 if (!isRunning) {
                     const value = parseFloat(e.target.value);
                     if (isNaN(value)) {
-                        e.target.value = id.includes('mass') ? 1 : 0;
+                        e.target.value = id === 'length' ? 1.0 : 30;
                         return;
                     }
 
                     // Enforce limits
-                    if (id.includes('mass')) {
-                        e.target.value = Math.max(0.1, Math.min(10, value));
+                    if (id === 'length') {
+                        e.target.value = Math.max(0.1, Math.min(5, value));
+                        length = parseFloat(e.target.value);
                     } else {
-                        e.target.value = Math.max(-10, Math.min(10, value));
+                        e.target.value = Math.max(1, Math.min(179, value));
+                        angle = parseFloat(e.target.value) * Math.PI / 180;
+                        initialAngle = angle;
                     }
 
-                    // Apply to blocks if not running
-                    if (id === 'massA') blockA.mass = parseFloat(e.target.value);
-                    if (id === 'massB') blockB.mass = parseFloat(e.target.value);
-                    if (id === 'velocityAInput') blockA.velocity = parseFloat(e.target.value);
-                    if (id === 'velocityBInput') blockB.velocity = parseFloat(e.target.value);
+                    // Calculate and display period
+                    const period = calculatePeriod(length, initialAngle);
+                    document.getElementById('periodDisplay').textContent = period.toFixed(3) + ' s';
 
                     // Update display
-                    document.getElementById('velocityA').textContent = blockA.velocity.toFixed(2) + ' m/s';
-                    document.getElementById('velocityB').textContent = blockB.velocity.toFixed(2) + ' m/s';
-                    const totalKE = kineticEnergy(blockA.mass, blockA.velocity) + kineticEnergy(blockB.mass, blockB.velocity);
-                    document.getElementById('totalKE').textContent = totalKE.toFixed(2) + ' J';
+                    document.getElementById('angleDisplay').textContent = (angle * 180 / Math.PI).toFixed(2) + '°';
 
                     draw();
                 }
             });
         });
-
-        // CanvasRenderingContext2D.roundRect polyfill for older browsers
-        if (!CanvasRenderingContext2D.prototype.roundRect) {
-            CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
-                this.beginPath();
-                this.moveTo(x + radius, y);
-                this.lineTo(x + width - radius, y);
-                this.quadraticCurveTo(x + width, y, x + width, y + radius);
-                this.lineTo(x + width, y + height - radius);
-                this.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-                this.lineTo(x + radius, y + height);
-                this.quadraticCurveTo(x, y + height, x, y + height - radius);
-                this.lineTo(x, y + radius);
-                this.quadraticCurveTo(x, y, x + radius, y);
-                this.closePath();
-                return this;
-            };
-        }
 
         // Smooth scroll for nav links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -948,7 +885,10 @@
             }
         });
 
-        // Initial draw
+        // Initial setup
+        const initialPeriod = calculatePeriod(length, initialAngle);
+        document.getElementById('periodDisplay').textContent = initialPeriod.toFixed(3) + ' s';
+        document.getElementById('angleDisplay').textContent = (angle * 180 / Math.PI).toFixed(2) + '°';
         draw();
     </script>
 </body>
