@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Neurons Work</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            border-bottom: 1px solid #e5e5e5;
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2em;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1em;
+        }
+
+        .simulation-area {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .panel {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            padding: 30px;
+        }
+
+        h2 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        canvas {
+            width: 100%;
+            height: 400px;
+            background: white;
+            border: 1px solid #e5e5e5;
+            image-rendering: crisp-edges;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: pixelated;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-value {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            padding: 0;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e5e5e5;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #1a1a1a;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #1a1a1a;
+            cursor: pointer;
+            border: none;
+        }
+
+        .instructions {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            margin-bottom: 30px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .calculation-box {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+            line-height: 2;
+        }
+
+        .step {
+            margin-bottom: 10px;
+        }
+
+        .step-label {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .step-value {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .result-box {
+            background: #fafafa;
+            border: 2px solid #1a1a1a;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .result-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            font-size: 2em;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .theory-section {
+            border-top: 1px solid #e5e5e5;
+            padding-top: 40px;
+            margin-top: 40px;
+        }
+
+        .theory-section h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .theory-section h3 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+        }
+
+        .theory-section p {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .highlight {
+            background: #fafafa;
+            border-left: 3px solid #1a1a1a;
+            padding: 15px 20px;
+            margin: 20px 0;
+        }
+
+        .formula {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        @media (max-width: 968px) {
+            .simulation-area {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>How a Neuron Works</h1>
+            <p class="subtitle">Understand the basic building block of neural networks through interactive visualization</p>
+        </header>
+
+        <div class="instructions">
+            <strong>Instructions:</strong> Adjust the input values and weights using the sliders below. Watch how the neuron processes these inputs through multiplication, addition, and an activation function to produce an output.
+        </div>
+
+        <div class="simulation-area">
+            <div class="panel">
+                <h2>Neuron Visualization</h2>
+                <canvas id="neuronCanvas"></canvas>
+            </div>
+
+            <div class="panel">
+                <h2>Controls</h2>
+                <div class="controls">
+                    <div class="control-group">
+                        <label class="control-label">
+                            <span>Input 1</span>
+                            <span class="control-value" id="input1Value">0.5</span>
+                        </label>
+                        <input type="range" id="input1" min="0" max="100" value="50" oninput="updateInputs()">
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">
+                            <span>Weight 1</span>
+                            <span class="control-value" id="weight1Value">0.8</span>
+                        </label>
+                        <input type="range" id="weight1" min="-100" max="100" value="80" oninput="updateInputs()">
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">
+                            <span>Input 2</span>
+                            <span class="control-value" id="input2Value">0.7</span>
+                        </label>
+                        <input type="range" id="input2" min="0" max="100" value="70" oninput="updateInputs()">
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">
+                            <span>Weight 2</span>
+                            <span class="control-value" id="weight2Value">-0.4</span>
+                        </label>
+                        <input type="range" id="weight2" min="-100" max="100" value="-40" oninput="updateInputs()">
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">
+                            <span>Bias</span>
+                            <span class="control-value" id="biasValue">0.3</span>
+                        </label>
+                        <input type="range" id="bias" min="-100" max="100" value="30" oninput="updateInputs()">
+                    </div>
+                </div>
+
+                <div class="calculation-box">
+                    <div class="step">
+                        <div class="step-label">Step 1: Multiply inputs by weights</div>
+                        <div class="step-value" id="mult1">0.5 × 0.8 = 0.40</div>
+                        <div class="step-value" id="mult2">0.7 × -0.4 = -0.28</div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-label">Step 2: Sum everything + bias</div>
+                        <div class="step-value" id="sum">0.40 + (-0.28) + 0.3 = 0.42</div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-label">Step 3: Apply activation (sigmoid)</div>
+                        <div class="step-value" id="activation">σ(0.42) = 0.603</div>
+                    </div>
+
+                    <div class="result-box">
+                        <div class="result-label">Neuron Output</div>
+                        <div class="result-value" id="output">0.603</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="theory-section">
+            <h2>Understanding Neurons</h2>
+
+            <h3>What is a Neuron?</h3>
+            <p>A neuron (also called a node or unit) is the basic building block of a neural network. It's inspired by biological neurons in the brain, but much simpler. A neuron takes in several inputs, processes them, and produces a single output.</p>
+
+            <p>Think of a neuron as a simple decision-maker. It receives information (inputs), considers how important each piece of information is (weights), and then makes a decision (output). Just like how you might make a decision by weighing different factors, a neuron weighs its inputs to produce an output.</p>
+
+            <h3>The Three Steps a Neuron Performs</h3>
+
+            <p><strong>Step 1: Multiply Each Input by Its Weight</strong></p>
+            <p>Each input to the neuron has an associated weight. The weight determines how important that input is. A large positive weight means "this input matters a lot in a positive way." A large negative weight means "this input matters a lot in a negative way." A weight near zero means "ignore this input."</p>
+
+            <p>For example, if Input 1 = 0.5 and Weight 1 = 0.8, then: 0.5 × 0.8 = 0.4</p>
+
+            <div class="highlight">
+                <strong>Real-world analogy:</strong> Imagine you're deciding whether to go to the beach. Input 1 might be the temperature (0.5 = 50°F), and Weight 1 is how much you care about temperature (0.8 = you care a lot). The product (0.4) represents the contribution of temperature to your decision.
+            </div>
+
+            <p><strong>Step 2: Add Everything Together (Plus a Bias)</strong></p>
+            <p>After multiplying each input by its weight, the neuron adds all these products together. It also adds a special value called the bias. The bias allows the neuron to adjust its overall sensitivity—it shifts the decision threshold up or down.</p>
+
+            <div class="formula">
+                Sum = (Input1 × Weight1) + (Input2 × Weight2) + Bias
+            </div>
+
+            <p>The bias is like a baseline preference. If the bias is positive, the neuron is more likely to activate. If negative, it's harder to activate. In our beach example, bias might represent your general love of the beach regardless of conditions.</p>
+
+            <p><strong>Step 3: Apply an Activation Function</strong></p>
+            <p>The sum from Step 2 can be any number—very large positive, very large negative, or anywhere in between. The activation function squashes this number into a useful range, typically between 0 and 1.</p>
+
+            <p>The most common activation function shown here is the sigmoid function. It creates an S-shaped curve that maps any input to a value between 0 and 1. Think of it as converting the neuron's raw calculation into a "confidence level" or "probability."</p>
+
+            <div class="formula">
+                σ(x) = 1 / (1 + e^(-x))
+            </div>
+
+            <p>When the sum is a large negative number, sigmoid outputs close to 0 (neuron is "off"). When the sum is a large positive number, sigmoid outputs close to 1 (neuron is "on"). When the sum is near zero, sigmoid outputs around 0.5 (uncertain).</p>
+
+            <h3>Why These Three Steps Matter</h3>
+
+            <p>This simple process of multiply-add-activate is incredibly powerful when you combine many neurons together. Each neuron learns different patterns through its weights. Some neurons might learn to detect edges in images, others might detect corners, and still others might detect complex shapes.</p>
+
+            <div class="highlight">
+                <strong>Key Insight:</strong> The magic happens during training. The network adjusts the weights and biases to minimize errors. It's like the neuron is constantly asking "what weights would make me give the right answer?" and gradually improving through practice.
+            </div>
+
+            <h3>Understanding Weights</h3>
+
+            <p><strong>Positive weights:</strong> When the input and weight are both positive, they contribute positively to activating the neuron. Try setting Input 1 to a high value (like 0.9) and Weight 1 to a high value (like 1.0). Watch the output increase.</p>
+
+            <p><strong>Negative weights:</strong> These create an inhibitory effect. If an input is high but its weight is very negative, it will push the neuron toward "off." Try setting Input 2 to 0.8 and Weight 2 to -1.0. The negative weight counteracts the positive input.</p>
+
+            <p><strong>Competing inputs:</strong> Often, some inputs push the neuron toward "on" while others push toward "off." The neuron essentially weighs these competing signals. Try setting Input 1 = 0.8 with Weight 1 = 1.0 (strong positive signal) and Input 2 = 0.8 with Weight 2 = -1.0 (strong negative signal). They cancel each other out!</p>
+
+            <h3>The Role of Bias</h3>
+
+            <p>The bias determines how easily the neuron activates. With a large positive bias, the neuron is predisposed to output high values (near 1) even with modest inputs. With a large negative bias, the neuron requires strong positive inputs to activate.</p>
+
+            <p>Try this experiment: Set both inputs to 0 and both weights to 0. Now adjust only the bias. You'll see that the bias alone determines the output when there are no input signals. The bias sets the "default" state of the neuron.</p>
+
+            <h3>Experimenting with the Simulation</h3>
+
+            <p><strong>Experiment 1: Strong Agreement</strong></p>
+            <p>Set Input 1 = 0.9, Weight 1 = 1.0, Input 2 = 0.9, Weight 2 = 1.0, Bias = 0.5. Both inputs strongly push for activation, and the bias adds extra support. Watch the output approach 1.0.</p>
+
+            <p><strong>Experiment 2: Cancellation</strong></p>
+            <p>Set Input 1 = 1.0, Weight 1 = 1.0, Input 2 = 1.0, Weight 2 = -1.0, Bias = 0. The positive and negative contributions cancel out perfectly, leaving the output near 0.5 (uncertain).</p>
+
+            <p><strong>Experiment 3: One Input Dominates</strong></p>
+            <p>Set Input 1 = 1.0, Weight 1 = 1.0, Input 2 = 0.2, Weight 2 = 0.2, Bias = 0. The first input dominates because both its value and weight are high. The second input barely contributes.</p>
+
+            <h3>From One Neuron to Many</h3>
+
+            <p>While a single neuron is quite simple, neural networks combine hundreds, thousands, or even millions of neurons in layers. Each neuron in one layer sends its output as input to neurons in the next layer. The first layer might learn simple patterns, the next layer combines those into more complex patterns, and so on.</p>
+
+            <p>This layered architecture, with each neuron performing these three simple steps, enables neural networks to learn incredibly complex patterns—from recognizing faces in photos to understanding human language to playing chess at superhuman levels.</p>
+
+            <div class="highlight">
+                <strong>The Big Picture:</strong> Every neuron in a neural network, no matter how complex the network, performs exactly these three steps: multiply inputs by weights, add them together with a bias, and apply an activation function. Understanding this single neuron is understanding the fundamental building block of all neural networks.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('neuronCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let input1 = 0.5;
+        let weight1 = 0.8;
+        let input2 = 0.7;
+        let weight2 = -0.4;
+        let bias = 0.3;
+
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            drawNeuron();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function sigmoid(x) {
+            return 1 / (1 + Math.exp(-x));
+        }
+
+        function drawNeuron() {
+            const rect = canvas.getBoundingClientRect();
+            const width = rect.width;
+            const height = rect.height;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Calculate neuron output
+            const product1 = input1 * weight1;
+            const product2 = input2 * weight2;
+            const sum = product1 + product2 + bias;
+            const output = sigmoid(sum);
+
+            // Positions
+            const inputX = 100;
+            const neuronX = width / 2;
+            const outputX = width - 100;
+            const centerY = height / 2;
+
+            // Draw connections with weights
+            // Connection 1
+            const lineWidth1 = Math.abs(weight1) * 5;
+            const alpha1 = Math.min(Math.abs(weight1), 1);
+            ctx.strokeStyle = weight1 > 0 ? `rgba(26, 26, 26, ${alpha1 * 0.7})` : `rgba(26, 26, 26, ${alpha1 * 0.3})`;
+            ctx.lineWidth = Math.max(1, lineWidth1);
+            ctx.setLineDash(weight1 < 0 ? [5, 5] : []);
+            ctx.beginPath();
+            ctx.moveTo(inputX, centerY - 60);
+            ctx.lineTo(neuronX - 40, centerY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Connection 2
+            const lineWidth2 = Math.abs(weight2) * 5;
+            const alpha2 = Math.min(Math.abs(weight2), 1);
+            ctx.strokeStyle = weight2 > 0 ? `rgba(26, 26, 26, ${alpha2 * 0.7})` : `rgba(26, 26, 26, ${alpha2 * 0.3})`;
+            ctx.lineWidth = Math.max(1, lineWidth2);
+            ctx.setLineDash(weight2 < 0 ? [5, 5] : []);
+            ctx.beginPath();
+            ctx.moveTo(inputX, centerY + 60);
+            ctx.lineTo(neuronX - 40, centerY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Output connection
+            ctx.strokeStyle = `rgba(26, 26, 26, ${output * 0.7})`;
+            ctx.lineWidth = Math.max(1, output * 5);
+            ctx.beginPath();
+            ctx.moveTo(neuronX + 40, centerY);
+            ctx.lineTo(outputX - 25, centerY);
+            ctx.stroke();
+
+            // Draw input nodes
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(inputX, centerY - 60, 25, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(inputX, centerY + 60, 25, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Draw neuron
+            const intensity = Math.min(Math.max(sum, -2), 2) / 4 + 0.5;
+            ctx.fillStyle = intensity > 0.5 ? `rgba(26, 26, 26, ${(intensity - 0.5) * 0.3})` : 'white';
+            ctx.beginPath();
+            ctx.arc(neuronX, centerY, 40, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Draw output node
+            ctx.fillStyle = output > 0.5 ? `rgba(26, 26, 26, ${(output - 0.5) * 0.4})` : 'white';
+            ctx.beginPath();
+            ctx.arc(outputX, centerY, 25, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Labels
+            ctx.fillStyle = '#1a1a1a';
+            ctx.font = '14px Inter, sans-serif';
+            ctx.textAlign = 'center';
+
+            // Input labels
+            ctx.fillText('Input 1', inputX, centerY - 90);
+            ctx.fillText(input1.toFixed(2), inputX, centerY - 55);
+            
+            ctx.fillText('Input 2', inputX, centerY + 30);
+            ctx.fillText(input2.toFixed(2), inputX, centerY + 65);
+
+            // Weight labels
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillStyle = '#666';
+            ctx.fillText('w=' + weight1.toFixed(2), (inputX + neuronX) / 2, centerY - 40);
+            ctx.fillText('w=' + weight2.toFixed(2), (inputX + neuronX) / 2, centerY + 50);
+
+            // Neuron label
+            ctx.fillStyle = '#1a1a1a';
+            ctx.font = '16px Inter, sans-serif';
+            ctx.fillText('NEURON', neuronX, centerY - 50);
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillText('Σ + bias', neuronX, centerY + 5);
+            ctx.fillText('then σ(x)', neuronX, centerY + 20);
+
+            // Output label
+            ctx.font = '14px Inter, sans-serif';
+            ctx.fillText('Output', outputX, centerY + 45);
+            ctx.fillText(output.toFixed(3), outputX, centerY + 5);
+
+            // Bias indicator
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillText('bias=' + bias.toFixed(2), neuronX, centerY + 60);
+        }
+
+        function updateInputs() {
+            input1 = parseInt(document.getElementById('input1').value) / 100;
+            weight1 = parseInt(document.getElementById('weight1').value) / 100;
+            input2 = parseInt(document.getElementById('input2').value) / 100;
+            weight2 = parseInt(document.getElementById('weight2').value) / 100;
+            bias = parseInt(document.getElementById('bias').value) / 100;
+
+            document.getElementById('input1Value').textContent = input1.toFixed(2);
+            document.getElementById('weight1Value').textContent = weight1.toFixed(2);
+            document.getElementById('input2Value').textContent = input2.toFixed(2);
+            document.getElementById('weight2Value').textContent = weight2.toFixed(2);
+            document.getElementById('biasValue').textContent = bias.toFixed(2);
+
+            const product1 = input1 * weight1;
+            const product2 = input2 * weight2;
+            const sum = product1 + product2 + bias;
+            const output = sigmoid(sum);
+
+            document.getElementById('mult1').textContent = 
+                `${input1.toFixed(2)} × ${weight1.toFixed(2)} = ${product1.toFixed(2)}`;
+            document.getElementById('mult2').textContent = 
+                `${input2.toFixed(2)} × ${weight2.toFixed(2)} = ${product2.toFixed(2)}`;
+            document.getElementById('sum').textContent = 
+                `${product1.toFixed(2)} + ${product2.toFixed(2)} + ${bias.toFixed(2)} = ${sum.toFixed(2)}`;
+            document.getElementById('activation').textContent = 
+                `σ(${sum.toFixed(2)}) = ${output.toFixed(3)}`;
+            document.getElementById('output').textContent = output.toFixed(3);
+
+            drawNeuron();
+        }
+
+        // Initialize
+        resizeCanvas();
+        updateInputs();
+    </script>
+</body>
+</html>

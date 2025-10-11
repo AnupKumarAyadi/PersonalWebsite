@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central Limit Theorem</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            border-bottom: 1px solid #e5e5e5;
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2em;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1em;
+        }
+
+        .simulation-area {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .charts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .chart-panel {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            padding: 30px;
+        }
+
+        .panel {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            padding: 30px;
+        }
+
+        h2 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        canvas {
+            width: 100%;
+            height: 300px;
+            background: white;
+            border: 1px solid #e5e5e5;
+            image-rendering: crisp-edges;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: pixelated;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-value {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e5e5e5;
+            background: white;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        input[type="range"] {
+            padding: 0;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e5e5e5;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #1a1a1a;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #1a1a1a;
+            cursor: pointer;
+            border: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px 24px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        button.secondary {
+            background: #fafafa;
+            color: #1a1a1a;
+            border: 1px solid #e5e5e5;
+        }
+
+        button.secondary:hover {
+            background: #f0f0f0;
+        }
+
+        .instructions {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            margin-bottom: 30px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .stats-display {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .stats-display div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .stats-display div:last-child {
+            margin-bottom: 0;
+        }
+
+        .stats-label {
+            color: #666;
+        }
+
+        .stats-value {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .theory-section {
+            border-top: 1px solid #e5e5e5;
+            padding-top: 40px;
+            margin-top: 40px;
+        }
+
+        .theory-section h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .theory-section h3 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+        }
+
+        .theory-section p {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .highlight {
+            background: #fafafa;
+            border-left: 3px solid #1a1a1a;
+            padding: 15px 20px;
+            margin: 20px 0;
+        }
+
+        .formula {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        @media (max-width: 968px) {
+            .simulation-area {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Central Limit Theorem</h1>
+            <p class="subtitle">Watch how sample means form a normal distribution, regardless of the population distribution</p>
+        </header>
+
+        <div class="instructions">
+            <strong>Instructions:</strong> Choose a population distribution (uniform, exponential, or bimodal). Select a sample size, then take samples to see how the distribution of sample means becomes increasingly normal as you collect more samples.
+        </div>
+
+        <div class="simulation-area">
+            <div class="charts-container">
+                <div class="chart-panel">
+                    <h2>Population Distribution</h2>
+                    <canvas id="populationCanvas"></canvas>
+                    <div class="stats-display">
+                        <div>
+                            <span class="stats-label">Population Mean (μ)</span>
+                            <span class="stats-value" id="popMean">50.0</span>
+                        </div>
+                        <div>
+                            <span class="stats-label">Population Std Dev (σ)</span>
+                            <span class="stats-value" id="popStdDev">15.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-panel">
+                    <h2>Distribution of Sample Means</h2>
+                    <canvas id="samplingCanvas"></canvas>
+                    <div class="stats-display">
+                        <div>
+                            <span class="stats-label">Mean of Sample Means</span>
+                            <span class="stats-value" id="sampleMeanMean">-</span>
+                        </div>
+                        <div>
+                            <span class="stats-label">Std Dev of Sample Means</span>
+                            <span class="stats-value" id="sampleMeanStdDev">-</span>
+                        </div>
+                        <div>
+                            <span class="stats-label">Expected SE (σ/√n)</span>
+                            <span class="stats-value" id="expectedSE">-</span>
+                        </div>
+                        <div>
+                            <span class="stats-label">Samples Taken</span>
+                            <span class="stats-value" id="sampleCount">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Controls</h2>
+                <div class="controls">
+                    <div class="control-group">
+                        <label class="control-label">
+                            <span>Population Distribution</span>
+                        </label>
+                        <select id="distributionType" onchange="changeDistribution()">
+                            <option value="uniform">Uniform (Flat)</option>
+                            <option value="exponential">Exponential (Right-skewed)</option>
+                            <option value="bimodal">Bimodal (Two peaks)</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">
+                            <span>Sample Size (n)</span>
+                            <span class="control-value" id="sampleSizeValue">5</span>
+                        </label>
+                        <input type="range" id="sampleSize" min="2" max="50" value="5" oninput="updateSampleSize()">
+                    </div>
+
+                    <button onclick="takeSample()">Take 1 Sample</button>
+                    <button onclick="takeManySamples(100)">Take 100 Samples</button>
+                    <button onclick="takeManySamples(1000)">Take 1000 Samples</button>
+                    <button class="secondary" onclick="reset()">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="theory-section">
+            <h2>Understanding the Central Limit Theorem</h2>
+
+            <h3>What is the Central Limit Theorem?</h3>
+            <p>The Central Limit Theorem (CLT) is one of the most important concepts in statistics. It states that when you take repeated random samples from any population and calculate the mean of each sample, the distribution of those sample means will approach a normal (bell-shaped) distribution as the number of samples increases. This happens regardless of the shape of the original population distribution.</p>
+
+            <div class="highlight">
+                <strong>Key Insight:</strong> Even if your population distribution is highly skewed, uniform, or has multiple peaks, the distribution of sample means will still become approximately normal. This is why the normal distribution is so prevalent in statistical analysis.
+            </div>
+
+            <h3>The Mathematical Statement</h3>
+            <p>If you draw samples of size n from a population with mean μ and standard deviation σ, then the distribution of sample means will have:</p>
+
+            <div class="formula">
+                Mean of sample means = μ
+                <br><br>
+                Standard deviation of sample means (Standard Error) = σ / √n
+            </div>
+
+            <p>As the sample size (n) increases and the number of samples taken increases, the distribution of sample means becomes more and more normal, regardless of the original population distribution.</p>
+
+            <h3>Why This Matters</h3>
+
+            <p><strong>Sample Size Effect:</strong> The larger your sample size (n), the smaller the standard error becomes. This means sample means cluster more tightly around the true population mean. You can see this in the simulation by adjusting the sample size slider - larger samples produce sample means that vary less from the population mean.</p>
+
+            <p><strong>Speed of Convergence:</strong> How quickly the distribution becomes normal depends on the original population. For symmetric distributions (like uniform), even small sample sizes (n ≥ 5) produce approximately normal distributions. For highly skewed distributions (like exponential), you might need larger sample sizes (n ≥ 30) to see clear normality.</p>
+
+            <div class="highlight">
+                <strong>Practical Application:</strong> The CLT is why we can use normal distribution methods for many statistical tests, even when the underlying population isn't normally distributed. It's the foundation for confidence intervals, hypothesis testing, and many other statistical procedures. As long as your sample size is reasonably large (typically n ≥ 30 is considered adequate), you can rely on the normal distribution for making inferences about population means.
+            </div>
+
+            <h3>Standard Error vs Standard Deviation</h3>
+            <p>It's crucial to understand the difference between these two measures:</p>
+
+            <p><strong>Standard Deviation (σ):</strong> Measures the spread of individual values in the population. This tells you how much variation exists among individual observations.</p>
+
+            <p><strong>Standard Error (SE = σ/√n):</strong> Measures the spread of sample means. This tells you how much sample means typically vary from the true population mean. The standard error decreases as sample size increases, because larger samples give more precise estimates of the population mean.</p>
+
+            <h3>Using the Simulation</h3>
+            <p>To see the Central Limit Theorem in action, try these experiments:</p>
+
+            <p><strong>Experiment 1:</strong> Start with the exponential distribution (highly skewed). Use a small sample size (n = 2) and take 1000 samples. Notice the distribution is still somewhat skewed.</p>
+
+            <p><strong>Experiment 2:</strong> Reset and use a larger sample size (n = 30) with the same exponential distribution. Take 1000 samples again. The distribution of sample means is now much more normal!</p>
+
+            <p><strong>Experiment 3:</strong> Try the bimodal distribution with different sample sizes. Watch how even this unusual distribution produces normal-looking sample means as you increase the sample size.</p>
+
+            <p>In each case, observe how the mean of sample means stays very close to the population mean (μ), and how the standard deviation of sample means closely matches the theoretical standard error (σ/√n). This demonstrates the power and reliability of the Central Limit Theorem.</p>
+        </div>
+    </div>
+
+    <script>
+        const popCanvas = document.getElementById('populationCanvas');
+        const sampCanvas = document.getElementById('samplingCanvas');
+        const popCtx = popCanvas.getContext('2d');
+        const sampCtx = sampCanvas.getContext('2d');
+
+        let distributionType = 'uniform';
+        let sampleSize = 5;
+        let population = [];
+        let sampleMeans = [];
+
+        // Set canvas size with proper pixel ratio
+        function resizeCanvases() {
+            [popCanvas, sampCanvas].forEach(canvas => {
+                const dpr = window.devicePixelRatio || 1;
+                const rect = canvas.getBoundingClientRect();
+                
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                
+                canvas.getContext('2d').scale(dpr, dpr);
+            });
+            
+            drawAll();
+        }
+
+        window.addEventListener('resize', resizeCanvases);
+
+        // Generate population based on distribution type
+        function generatePopulation() {
+            population = [];
+            const size = 10000;
+
+            if (distributionType === 'uniform') {
+                for (let i = 0; i < size; i++) {
+                    population.push(Math.random() * 100);
+                }
+            } else if (distributionType === 'exponential') {
+                for (let i = 0; i < size; i++) {
+                    population.push(-Math.log(Math.random()) * 20);
+                }
+            } else if (distributionType === 'bimodal') {
+                for (let i = 0; i < size; i++) {
+                    if (Math.random() < 0.5) {
+                        population.push(normalRandom(30, 10));
+                    } else {
+                        population.push(normalRandom(70, 10));
+                    }
+                }
+            }
+
+            // Clip to 0-100 range
+            population = population.map(x => Math.max(0, Math.min(100, x)));
+        }
+
+        function normalRandom(mean, stdDev) {
+            let u = 0, v = 0;
+            while(u === 0) u = Math.random();
+            while(v === 0) v = Math.random();
+            const num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+            return num * stdDev + mean;
+        }
+
+        function calculateStats(data) {
+            if (data.length === 0) return { mean: 0, stdDev: 0 };
+            
+            const mean = data.reduce((a, b) => a + b, 0) / data.length;
+            const variance = data.reduce((sum, val) => sum + (val - mean) ** 2, 0) / data.length;
+            const stdDev = Math.sqrt(variance);
+            
+            return { mean, stdDev };
+        }
+
+        function drawHistogram(ctx, data, canvas, showNormal = false) {
+            const rect = canvas.getBoundingClientRect();
+            const width = rect.width;
+            const height = rect.height;
+            const margin = 40;
+            const plotWidth = width - 2 * margin;
+            const plotHeight = height - 2 * margin;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (data.length === 0) return;
+
+            // Create histogram bins
+            const binCount = 40;
+            const minVal = 0;
+            const maxVal = 100;
+            const binWidth = (maxVal - minVal) / binCount;
+            const bins = new Array(binCount).fill(0);
+
+            data.forEach(val => {
+                const binIndex = Math.min(Math.floor((val - minVal) / binWidth), binCount - 1);
+                if (binIndex >= 0 && binIndex < binCount) {
+                    bins[binIndex]++;
+                }
+            });
+
+            const maxBinCount = Math.max(...bins);
+
+            // Draw axes
+            ctx.strokeStyle = '#e5e5e5';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(margin, margin);
+            ctx.lineTo(margin, height - margin);
+            ctx.lineTo(width - margin, height - margin);
+            ctx.stroke();
+
+            // Draw histogram bars
+            ctx.fillStyle = 'rgba(26, 26, 26, 0.7)';
+            bins.forEach((count, i) => {
+                const x = margin + (i / binCount) * plotWidth;
+                const barWidth = plotWidth / binCount;
+                const barHeight = (count / maxBinCount) * plotHeight;
+                const y = height - margin - barHeight;
+                
+                ctx.fillRect(x, y, barWidth - 1, barHeight);
+            });
+
+            // Draw mean line
+            const stats = calculateStats(data);
+            const meanX = (stats.mean / 100) * plotWidth + margin;
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(meanX, margin);
+            ctx.lineTo(meanX, height - margin);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw normal curve overlay if requested
+            if (showNormal && data.length > 10) {
+                ctx.strokeStyle = 'rgba(220, 38, 38, 0.8)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+
+                const mean = stats.mean;
+                const stdDev = stats.stdDev;
+
+                for (let i = 0; i <= 100; i++) {
+                    const x = i;
+                    const normalY = (1 / (stdDev * Math.sqrt(2 * Math.PI))) * 
+                                   Math.exp(-0.5 * Math.pow((x - mean) / stdDev, 2));
+                    
+                    const plotX = (x / 100) * plotWidth + margin;
+                    const plotY = height - margin - (normalY / (1 / (stdDev * Math.sqrt(2 * Math.PI)))) * plotHeight * 0.4;
+
+                    if (i === 0) {
+                        ctx.moveTo(plotX, plotY);
+                    } else {
+                        ctx.lineTo(plotX, plotY);
+                    }
+                }
+                ctx.stroke();
+            }
+
+            // X-axis labels
+            ctx.fillStyle = '#666';
+            ctx.font = '11px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            for (let i = 0; i <= 4; i++) {
+                const val = i * 25;
+                const x = margin + (val / 100) * plotWidth;
+                ctx.fillText(val, x, height - margin + 18);
+            }
+        }
+
+        function drawAll() {
+            const popStats = calculateStats(population);
+            document.getElementById('popMean').textContent = popStats.mean.toFixed(1);
+            document.getElementById('popStdDev').textContent = popStats.stdDev.toFixed(1);
+
+            drawHistogram(popCtx, population, popCanvas, false);
+            drawHistogram(sampCtx, sampleMeans, sampCanvas, true);
+
+            if (sampleMeans.length > 0) {
+                const sampStats = calculateStats(sampleMeans);
+                document.getElementById('sampleMeanMean').textContent = sampStats.mean.toFixed(2);
+                document.getElementById('sampleMeanStdDev').textContent = sampStats.stdDev.toFixed(2);
+                
+                const expectedSE = popStats.stdDev / Math.sqrt(sampleSize);
+                document.getElementById('expectedSE').textContent = expectedSE.toFixed(2);
+            } else {
+                document.getElementById('sampleMeanMean').textContent = '-';
+                document.getElementById('sampleMeanStdDev').textContent = '-';
+                document.getElementById('expectedSE').textContent = '-';
+            }
+
+            document.getElementById('sampleCount').textContent = sampleMeans.length;
+        }
+
+        function takeSample() {
+            const sample = [];
+            for (let i = 0; i < sampleSize; i++) {
+                sample.push(population[Math.floor(Math.random() * population.length)]);
+            }
+            const mean = sample.reduce((a, b) => a + b, 0) / sample.length;
+            sampleMeans.push(mean);
+            drawAll();
+        }
+
+        function takeManySamples(count) {
+            for (let i = 0; i < count; i++) {
+                const sample = [];
+                for (let j = 0; j < sampleSize; j++) {
+                    sample.push(population[Math.floor(Math.random() * population.length)]);
+                }
+                const mean = sample.reduce((a, b) => a + b, 0) / sample.length;
+                sampleMeans.push(mean);
+            }
+            drawAll();
+        }
+
+        function changeDistribution() {
+            distributionType = document.getElementById('distributionType').value;
+            reset();
+        }
+
+        function updateSampleSize() {
+            sampleSize = parseInt(document.getElementById('sampleSize').value);
+            document.getElementById('sampleSizeValue').textContent = sampleSize;
+            
+            if (sampleMeans.length > 0) {
+                const popStats = calculateStats(population);
+                const expectedSE = popStats.stdDev / Math.sqrt(sampleSize);
+                document.getElementById('expectedSE').textContent = expectedSE.toFixed(2);
+            }
+        }
+
+        function reset() {
+            sampleMeans = [];
+            generatePopulation();
+            drawAll();
+        }
+
+        // Initialize
+        resizeCanvases();
+        reset();
+    </script>
+</body>
+</html>

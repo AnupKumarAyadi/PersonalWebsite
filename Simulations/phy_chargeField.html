@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electric Field Visualization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            border-bottom: 1px solid #e5e5e5;
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2em;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1em;
+        }
+
+        .simulation-area {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .panel {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            padding: 30px;
+        }
+
+        h2 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        canvas {
+            width: 100%;
+            height: 600px;
+            background: white;
+            border: 1px solid #e5e5e5;
+            cursor: crosshair;
+            image-rendering: crisp-edges;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: pixelated;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-value {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e5e5e5;
+            background: white;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        input[type="range"] {
+            padding: 0;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e5e5e5;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #1a1a1a;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #1a1a1a;
+            cursor: pointer;
+            border: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px 24px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        button.secondary {
+            background: #fafafa;
+            color: #1a1a1a;
+            border: 1px solid #e5e5e5;
+        }
+
+        button.secondary:hover {
+            background: #f0f0f0;
+        }
+
+        .instructions {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            margin-bottom: 30px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .charge-list {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .charge-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            margin-bottom: 5px;
+            background: #fafafa;
+            font-size: 13px;
+        }
+
+        .charge-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .charge-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .charge-circle {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .charge-circle.positive {
+            background: #dc2626;
+        }
+
+        .charge-circle.negative {
+            background: #2563eb;
+        }
+
+        .delete-btn {
+            padding: 4px 8px;
+            background: #e5e5e5;
+            color: #1a1a1a;
+            border: none;
+            cursor: pointer;
+            font-size: 11px;
+            transition: background 0.2s;
+        }
+
+        .delete-btn:hover {
+            background: #d0d0d0;
+        }
+
+        .legend {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-circle {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .legend-circle.positive {
+            background: #dc2626;
+        }
+
+        .legend-circle.negative {
+            background: #2563eb;
+        }
+
+        .legend-arrow {
+            width: 20px;
+            height: 2px;
+            background: #1a1a1a;
+            position: relative;
+        }
+
+        .legend-arrow::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -3px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid #1a1a1a;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .theory-section {
+            border-top: 1px solid #e5e5e5;
+            padding-top: 40px;
+            margin-top: 40px;
+        }
+
+        .theory-section h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .theory-section h3 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+        }
+
+        .theory-section p {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .highlight {
+            background: #fafafa;
+            border-left: 3px solid #1a1a1a;
+            padding: 15px 20px;
+            margin: 20px 0;
+        }
+
+        .formula {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 968px) {
+            .simulation-area {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Electric Field Visualization</h1>
+            <p class="subtitle">Explore vector fields generated by point charges in 2D space</p>
+        </header>
+
+        <div class="instructions">
+            <strong>Instructions:</strong> Click on the canvas to place charges. Use the charge type selector to switch between positive and negative charges. Watch how the electric field vectors change as you add or remove charges. Click on an existing charge to remove it.
+        </div>
+
+        <div class="simulation-area">
+            <div class="panel">
+                <h2>Electric Field Canvas</h2>
+                <canvas id="fieldCanvas"></canvas>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-circle positive"></div>
+                        <span>Positive Charge (+)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-circle negative"></div>
+                        <span>Negative Charge (−)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-arrow"></div>
+                        <span>Field Direction (+ to −)</span>
+                    </div>
+                </div>
+                <div class="legend" id="intensityLegend" style="display: none; margin-top: 15px; border-top: 1px solid #e5e5e5; padding-top: 15px;">
+                    <div style="font-weight: 600; margin-bottom: 10px; font-size: 13px;">Field Intensity</div>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                        <div style="width: 30px; height: 15px; background: linear-gradient(to right, #ff0000, #ff6b00);"></div>
+                        <span style="font-size: 12px;">Very Strong</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                        <div style="width: 30px; height: 15px; background: linear-gradient(to right, #ffaa00, #ffff00);"></div>
+                        <span style="font-size: 12px;">Strong</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                        <div style="width: 30px; height: 15px; background: linear-gradient(to right, #90ff90, #ffffff);"></div>
+                        <span style="font-size: 12px;">Moderate to Weak</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Controls</h2>
+                <div class="controls">
+                    <div class="control-group">
+                        <label class="control-label">
+                            <span>Charge Type</span>
+                        </label>
+                        <select id="chargeType">
+                            <option value="positive">Positive (+)</option>
+                            <option value="negative">Negative (−)</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">
+                            <span>Charge Magnitude</span>
+                            <span class="control-value" id="magnitudeValue">1.0</span>
+                        </label>
+                        <input type="range" id="chargeMagnitude" min="1" max="30" value="10" oninput="updateMagnitude()">
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">
+                            <span>Display Options</span>
+                        </label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="showFieldLines" checked onchange="updateDisplay()">
+                                <span>Show Field Lines</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="showMagnitude" onchange="updateDisplay()">
+                                <span>Show Field Intensity</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button onclick="addPresetDipole()">Add Dipole</button>
+                    <button class="secondary" onclick="clearCharges()">Clear All Charges</button>
+                </div>
+
+                <h2 style="margin-top: 30px;">Charges</h2>
+                <div class="charge-list" id="chargeList">
+                    <div style="color: #999; text-align: center; padding: 20px;">No charges placed</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="theory-section">
+            <h2>Understanding Electric Fields</h2>
+
+            <h3>What is an Electric Field?</h3>
+            <p>An electric field is a vector field that represents the force per unit charge at every point in space. It's created by electric charges and describes how a test charge would be pushed or pulled if placed at any location. The field vectors point in the direction a positive test charge would move.</p>
+
+            <div class="highlight">
+                <strong>Key Insight:</strong> Electric field vectors always point away from positive charges and toward negative charges. The strength of the field decreases with distance from the charge following an inverse square law.
+            </div>
+
+            <h3>Coulomb's Law and the Electric Field</h3>
+            <p>The electric field from a point charge is given by Coulomb's law. For a single charge Q at the origin, the field at position r has magnitude:</p>
+
+            <div class="formula">
+                E = k × |Q| / r²
+            </div>
+
+            <p>Where k is Coulomb's constant (approximately 8.99 × 10⁹ N·m²/C²), Q is the charge magnitude, and r is the distance from the charge. The direction of the field is radially outward for positive charges and radially inward for negative charges.</p>
+
+            <h3>Superposition Principle</h3>
+            <p>When multiple charges are present, the total electric field at any point is the vector sum of the fields from all individual charges. This is called the superposition principle. Each charge contributes to the field independently, and we simply add the vector contributions:</p>
+
+            <div class="formula">
+                E_total = E₁ + E₂ + E₃ + ... + Eₙ
+            </div>
+
+            <p>This is why complex field patterns emerge when you place multiple charges. The simulation calculates the field at each grid point by summing the contributions from all charges you've placed.</p>
+
+            <h3>Understanding Vector Fields</h3>
+            
+            <p><strong>Field Vectors:</strong> Each arrow in the visualization represents the electric field at that point. The direction shows which way a positive charge would accelerate, and the length indicates the field strength. Longer arrows mean stronger fields.</p>
+
+            <p><strong>Field Lines:</strong> These are continuous curves that are always tangent to the field vectors. They provide an alternative visualization that shows the overall structure of the field. Field lines never cross each other, and their density indicates field strength.</p>
+
+            <p><strong>Field Intensity:</strong> The color-coded background shows field magnitude. Brighter regions indicate stronger fields near charges, while darker regions show weaker fields far from charges.</p>
+
+            <h3>Inverse Square Law</h3>
+            <p>The electric field strength decreases rapidly with distance. If you double the distance from a charge, the field strength becomes one-fourth as strong. If you triple the distance, it becomes one-ninth as strong. This 1/r² relationship is fundamental to electromagnetic phenomena.</p>
+
+            <div class="highlight">
+                <strong>Try this:</strong> Place a single charge and observe how the field vectors get shorter as you move away from the charge. The field is strongest right next to the charge and becomes negligible at large distances.
+            </div>
+
+            <h3>Electric Dipoles</h3>
+            <p>An electric dipole consists of two charges of equal magnitude but opposite sign separated by a small distance. Dipoles create distinctive field patterns and are important in chemistry and materials science. Use the "Add Dipole" button to see this pattern.</p>
+
+            <p>In a dipole field, the field lines emerge from the positive charge and curve around to enter the negative charge. Between the charges, the field is quite strong. Far from the dipole, the fields from the two charges nearly cancel out.</p>
+
+            <h3>Multiple Charge Configurations</h3>
+
+            <p><strong>Like Charges:</strong> When you place two charges of the same sign near each other, they create a repulsive field pattern. The field vectors between them point away from each other. There's a point exactly between equal charges where the field is zero because the contributions cancel.</p>
+
+            <p><strong>Opposite Charges:</strong> Two charges of opposite sign create an attractive field pattern. The field lines run from the positive to the negative charge. The field is strongest along the line connecting the charges.</p>
+
+            <p><strong>Multiple Charges:</strong> With three or more charges, you can create complex patterns. Try creating symmetric arrangements like a square of alternating charges, or a ring of equal charges. Observe the field patterns that emerge.</p>
+
+            <h3>Field Strength and Charge Magnitude</h3>
+            <p>The charge magnitude slider lets you control how strong each charge is. Larger magnitude charges create stronger fields that extend further into space. When you have both large and small charges, the field is dominated by the larger charges except very close to the smaller ones.</p>
+
+            <div class="formula">
+                E ∝ Q
+                <br>
+                (Field strength is proportional to charge)
+            </div>
+
+            <h3>Equipotential Surfaces</h3>
+            <p>Although not directly shown in this simulation, equipotential surfaces are imaginary surfaces where the electric potential is constant. These surfaces are always perpendicular to electric field lines. Understanding both field lines and equipotential surfaces provides a complete picture of the electric field.</p>
+
+            <h3>Physical Applications</h3>
+
+            <p><strong>Particle Accelerators:</strong> Electric fields accelerate charged particles to high speeds. By carefully arranging charges and voltages, scientists can control particle trajectories in accelerators and mass spectrometers.</p>
+
+            <p><strong>Capacitors:</strong> These devices store energy in electric fields between oppositely charged plates. The field pattern between parallel plates (which you can approximate with two opposite charges) is nearly uniform in the center.</p>
+
+            <p><strong>Molecular Interactions:</strong> Many molecules have charge distributions that create dipole or more complex fields. These fields determine how molecules interact with each other and with external electric fields.</p>
+
+            <h3>Experimenting with the Simulation</h3>
+
+            <p><strong>Experiment 1: Field Cancellation</strong></p>
+            <p>Place two positive charges of equal magnitude some distance apart. Then place a negative charge of double the magnitude exactly between them. Observe where the field is weak or zero.</p>
+
+            <p><strong>Experiment 2: Ring of Charges</strong></p>
+            <p>Create a circle of alternating positive and negative charges. Notice the complex pattern in the center and how the field behaves outside the ring.</p>
+
+            <p><strong>Experiment 3: Shielding Effect</strong></p>
+            <p>Place a strong positive charge, then surround it partially with several negative charges. Observe how the negative charges "shield" the field on their side, creating an asymmetric pattern.</p>
+
+            <div class="highlight">
+                <strong>Important Note:</strong> This simulation uses a simplified 2D model. In three-dimensional space, electric fields spread out in all directions, and the inverse square law has even more dramatic effects on field strength with distance.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('fieldCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let charges = [];
+        let chargeType = 'positive';
+        let chargeMagnitude = 1.0;
+        let showFieldLines = true;
+        let showMagnitude = false;
+
+        const CHARGE_RADIUS = 12;
+        const CLICK_THRESHOLD = 20;
+
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            
+            ctx.scale(dpr, dpr);
+            
+            drawField();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Check if clicking on existing charge to remove
+            for (let i = charges.length - 1; i >= 0; i--) {
+                const dx = x - charges[i].x;
+                const dy = y - charges[i].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < CLICK_THRESHOLD) {
+                    charges.splice(i, 1);
+                    updateChargeList();
+                    drawField();
+                    return;
+                }
+            }
+
+            // Add new charge
+            charges.push({
+                x: x,
+                y: y,
+                charge: chargeType === 'positive' ? chargeMagnitude : -chargeMagnitude
+            });
+
+            updateChargeList();
+            drawField();
+        });
+
+        function calculateField(x, y) {
+            let Ex = 0;
+            let Ey = 0;
+
+            charges.forEach(charge => {
+                const dx = x - charge.x;
+                const dy = y - charge.y;
+                const r2 = dx * dx + dy * dy;
+                
+                if (r2 < 100) return; // Too close to charge
+
+                const r = Math.sqrt(r2);
+                const k = 500; // Scaling constant
+                const E = k * charge.charge / r2;
+                
+                Ex += E * dx / r;
+                Ey += E * dy / r;
+            });
+
+            return { Ex, Ey, magnitude: Math.sqrt(Ex * Ex + Ey * Ey) };
+        }
+
+        function drawField() {
+            const rect = canvas.getBoundingClientRect();
+            const width = rect.width;
+            const height = rect.height;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw field intensity as background
+            if (showMagnitude && charges.length > 0) {
+                const imageData = ctx.createImageData(width, height);
+                const data = imageData.data;
+
+                let maxMagnitude = 0;
+                const magnitudes = [];
+
+                // Calculate all magnitudes first
+                for (let y = 0; y < height; y += 2) {
+                    for (let x = 0; x < width; x += 2) {
+                        const field = calculateField(x, y);
+                        magnitudes.push(field.magnitude);
+                        maxMagnitude = Math.max(maxMagnitude, field.magnitude);
+                    }
+                }
+
+                // Draw intensity with color gradient
+                let idx = 0;
+                for (let y = 0; y < height; y += 2) {
+                    for (let x = 0; x < width; x += 2) {
+                        const normalized = Math.min(magnitudes[idx] / (maxMagnitude * 0.5), 1);
+                        
+                        let r, g, b;
+                        if (normalized > 0.8) {
+                            // Very strong: red to orange
+                            const t = (normalized - 0.8) / 0.2;
+                            r = 255;
+                            g = Math.floor(107 * (1 - t));
+                            b = 0;
+                        } else if (normalized > 0.5) {
+                            // Strong: orange to yellow
+                            const t = (normalized - 0.5) / 0.3;
+                            r = Math.floor(255 - 85 * (1 - t));
+                            g = Math.floor(107 + 148 * t);
+                            b = 0;
+                        } else if (normalized > 0.2) {
+                            // Moderate: yellow to light green
+                            const t = (normalized - 0.2) / 0.3;
+                            r = Math.floor(255 - 111 * t);
+                            g = 255;
+                            b = Math.floor(144 * (1 - t));
+                        } else {
+                            // Weak: light green to white
+                            const t = normalized / 0.2;
+                            r = Math.floor(255 - 111 * t);
+                            g = 255;
+                            b = Math.floor(255 - 111 * t);
+                        }
+                        
+                        // Fill 2x2 block
+                        for (let dy = 0; dy < 2; dy++) {
+                            for (let dx = 0; dx < 2; dx++) {
+                                const pixelIndex = ((y + dy) * width + (x + dx)) * 4;
+                                data[pixelIndex] = r;
+                                data[pixelIndex + 1] = g;
+                                data[pixelIndex + 2] = b;
+                                data[pixelIndex + 3] = 255;
+                            }
+                        }
+                        idx++;
+                    }
+                }
+
+                ctx.putImageData(imageData, 0, 0);
+            }
+
+            // Draw field lines
+            if (showFieldLines && charges.length > 0) {
+                ctx.strokeStyle = 'rgba(26, 26, 26, 0.4)';
+                ctx.lineWidth = 1.5;
+
+                charges.forEach(charge => {
+                    if (charge.charge > 0) {
+                        const numLines = 8;
+                        for (let i = 0; i < numLines; i++) {
+                            const angle = (i / numLines) * Math.PI * 2;
+                            const direction = 1;
+                            drawFieldLine(
+                                charge.x + Math.cos(angle) * CHARGE_RADIUS * 1.5,
+                                charge.y + Math.sin(angle) * CHARGE_RADIUS * 1.5,
+                                direction
+                            );
+                        }
+                    }
+                });
+            }
+
+            // Draw field lines with vectors removed
+            // (This section is now empty - vectors removed)
+
+            // Draw charges
+            charges.forEach(charge => {
+                ctx.fillStyle = charge.charge > 0 ? '#dc2626' : '#2563eb';
+                ctx.beginPath();
+                ctx.arc(charge.x, charge.y, CHARGE_RADIUS, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw + or - symbol
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 16px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(charge.charge > 0 ? '+' : '−', charge.x, charge.y);
+            });
+        }
+
+        function drawVector(x, y, Ex, Ey, magnitude) {
+            const scale = 1.5;
+            const len = Math.min(Math.sqrt(Ex * Ex + Ey * Ey) * scale, vectorDensity * 0.45);
+            
+            if (len < 2) return;
+
+            const angle = Math.atan2(Ey, Ex);
+            const endX = x + Math.cos(angle) * len;
+            const endY = y + Math.sin(angle) * len;
+
+            // Draw arrow shaft
+            ctx.strokeStyle = 'rgba(26, 26, 26, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+
+            // Draw arrowhead
+            const headLen = 6;
+            const headAngle = Math.PI / 6;
+            
+            ctx.fillStyle = 'rgba(26, 26, 26, 0.8)';
+            ctx.beginPath();
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(
+                endX - headLen * Math.cos(angle - headAngle),
+                endY - headLen * Math.sin(angle - headAngle)
+            );
+            ctx.lineTo(
+                endX - headLen * Math.cos(angle + headAngle),
+                endY - headLen * Math.sin(angle + headAngle)
+            );
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawFieldLine(startX, startY, direction) {
+            const rect = canvas.getBoundingClientRect();
+            const step = 3;
+            const maxSteps = 1000;
+            let x = startX;
+            let y = startY;
+            const points = [{x, y}];
+
+            for (let i = 0; i < maxSteps; i++) {
+                const field = calculateField(x, y);
+                
+                if (field.magnitude < 0.05) break;
+                if (x < -50 || x > rect.width + 50 || y < -50 || y > rect.height + 50) break;
+
+                // Check if near negative charge
+                let nearNegativeCharge = false;
+                for (let charge of charges) {
+                    const dx = x - charge.x;
+                    const dy = y - charge.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < CHARGE_RADIUS * 1.5 && charge.charge < 0) {
+                        nearNegativeCharge = true;
+                        break;
+                    }
+                }
+                if (nearNegativeCharge) break;
+
+                const angle = Math.atan2(field.Ey, field.Ex);
+                x += direction * Math.cos(angle) * step;
+                y += direction * Math.sin(angle) * step;
+
+                points.push({x, y});
+            }
+
+            // Draw the line
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x, points[i].y);
+            }
+            ctx.stroke();
+
+            // Draw arrows along the line
+            const arrowInterval = 50; // pixels between arrows
+            let distanceTraveled = 0;
+            
+            for (let i = 1; i < points.length; i++) {
+                const dx = points[i].x - points[i-1].x;
+                const dy = points[i].y - points[i-1].y;
+                const segmentLength = Math.sqrt(dx * dx + dy * dy);
+                distanceTraveled += segmentLength;
+                
+                if (distanceTraveled >= arrowInterval) {
+                    distanceTraveled = 0;
+                    
+                    // Draw arrow at this point
+                    const angle = Math.atan2(dy, dx);
+                    const headLen = 6;
+                    const headAngle = Math.PI / 6;
+                    
+                    ctx.fillStyle = 'rgba(26, 26, 26, 0.6)';
+                    ctx.beginPath();
+                    ctx.moveTo(points[i].x, points[i].y);
+                    ctx.lineTo(
+                        points[i].x - headLen * Math.cos(angle - headAngle),
+                        points[i].y - headLen * Math.sin(angle - headAngle)
+                    );
+                    ctx.lineTo(
+                        points[i].x - headLen * Math.cos(angle + headAngle),
+                        points[i].y - headLen * Math.sin(angle + headAngle)
+                    );
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            }
+        }
+
+        function updateChargeList() {
+            const list = document.getElementById('chargeList');
+            
+            if (charges.length === 0) {
+                list.innerHTML = '<div style="color: #999; text-align: center; padding: 20px;">No charges placed</div>';
+                return;
+            }
+
+            list.innerHTML = charges.map((charge, index) => `
+                <div class="charge-item">
+                    <div class="charge-info">
+                        <div class="charge-circle ${charge.charge > 0 ? 'positive' : 'negative'}"></div>
+                        <span>${charge.charge > 0 ? 'Positive' : 'Negative'} (${Math.abs(charge.charge).toFixed(1)})</span>
+                    </div>
+                    <button class="delete-btn" onclick="removeCharge(${index})">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        function removeCharge(index) {
+            charges.splice(index, 1);
+            updateChargeList();
+            drawField();
+        }
+
+        function updateMagnitude() {
+            chargeMagnitude = parseInt(document.getElementById('chargeMagnitude').value) / 10;
+            document.getElementById('magnitudeValue').textContent = chargeMagnitude.toFixed(1);
+        }
+
+        function updateDisplay() {
+            showFieldLines = document.getElementById('showFieldLines').checked;
+            showMagnitude = document.getElementById('showMagnitude').checked;
+            
+            // Show/hide intensity legend
+            document.getElementById('intensityLegend').style.display = showMagnitude ? 'flex' : 'none';
+            
+            drawField();
+        }
+
+        function addPresetDipole() {
+            const rect = canvas.getBoundingClientRect();
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const separation = 100;
+
+            charges.push({
+                x: centerX - separation / 2,
+                y: centerY,
+                charge: chargeMagnitude
+            });
+
+            charges.push({
+                x: centerX + separation / 2,
+                y: centerY,
+                charge: -chargeMagnitude
+            });
+
+            updateChargeList();
+            drawField();
+        }
+
+        function clearCharges() {
+            charges = [];
+            updateChargeList();
+            drawField();
+        }
+
+        // Initialize
+        document.getElementById('chargeType').addEventListener('change', (e) => {
+            chargeType = e.target.value;
+        });
+
+        updateMagnitude();
+    </script>
+</body>
+</html>

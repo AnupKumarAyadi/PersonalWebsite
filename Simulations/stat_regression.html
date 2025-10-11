@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correlation and Regression</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            border-bottom: 1px solid #e5e5e5;
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2em;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1em;
+        }
+
+        .simulation-area {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .panel {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            padding: 30px;
+        }
+
+        h2 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        canvas {
+            width: 100%;
+            height: 500px;
+            background: white;
+            border: 1px solid #e5e5e5;
+            cursor: crosshair;
+            image-rendering: crisp-edges;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: pixelated;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-value {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e5e5e5;
+            background: white;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        input[type="range"] {
+            padding: 0;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e5e5e5;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #1a1a1a;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #1a1a1a;
+            cursor: pointer;
+            border: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px 24px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        button.secondary {
+            background: #fafafa;
+            color: #1a1a1a;
+            border: 1px solid #e5e5e5;
+        }
+
+        button.secondary:hover {
+            background: #f0f0f0;
+        }
+
+        .instructions {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            margin-bottom: 30px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .stats-display {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .stats-display div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .stats-display div:last-child {
+            margin-bottom: 0;
+        }
+
+        .stats-label {
+            color: #666;
+        }
+
+        .stats-value {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .legend {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-circle {
+            width: 10px;
+            height: 10px;
+            background: #1a1a1a;
+            border-radius: 50%;
+        }
+
+        .legend-line {
+            width: 30px;
+            height: 2px;
+            background: #dc2626;
+        }
+
+        .legend-line.residual {
+            background: #666;
+            height: 1px;
+        }
+
+        .theory-section {
+            border-top: 1px solid #e5e5e5;
+            padding-top: 40px;
+            margin-top: 40px;
+        }
+
+        .theory-section h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .theory-section h3 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+        }
+
+        .theory-section p {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .highlight {
+            background: #fafafa;
+            border-left: 3px solid #1a1a1a;
+            padding: 15px 20px;
+            margin: 20px 0;
+        }
+
+        .formula {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 968px) {
+            .simulation-area {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Correlation and Linear Regression</h1>
+            <p class="subtitle">Visualize the relationship between two variables and understand regression analysis</p>
+        </header>
+
+        <div class="instructions">
+            <strong>Instructions:</strong> Click on the scatter plot to add data points. Choose a preset pattern or add your own points. Watch how the regression line fits the data and observe the correlation coefficient.
+        </div>
+
+        <div class="simulation-area">
+            <div class="panel">
+                <h2>Scatter Plot with Regression Line</h2>
+                <canvas id="scatterCanvas"></canvas>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-circle"></div>
+                        <span>Data Points</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-line"></div>
+                        <span>Regression Line (y = mx + b)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-line residual"></div>
+                        <span>Residuals</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Controls</h2>
+                <div class="controls">
+                    <div class="control-group">
+                        <label class="control-label">
+                            <span>Preset Patterns</span>
+                        </label>
+                        <select id="patternType" onchange="changePattern()">
+                            <option value="custom">Custom (Click to add)</option>
+                            <option value="positive">Strong Positive</option>
+                            <option value="negative">Strong Negative</option>
+                            <option value="weak">Weak Correlation</option>
+                            <option value="none">No Correlation</option>
+                            <option value="curved">Curved (Non-linear)</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">
+                            <span>Display Options</span>
+                        </label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="showLine" checked onchange="updateDisplay()">
+                                <span>Show Regression Line</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="showResiduals" onchange="updateDisplay()">
+                                <span>Show Residuals</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button onclick="addRandomPoint()">Add Random Point</button>
+                    <button class="secondary" onclick="clearData()">Clear All</button>
+                </div>
+
+                <div class="stats-display">
+                    <div>
+                        <span class="stats-label">Correlation (r)</span>
+                        <span class="stats-value" id="correlationValue">-</span>
+                    </div>
+                    <div>
+                        <span class="stats-label">R² (Coefficient of Determination)</span>
+                        <span class="stats-value" id="r2Value">-</span>
+                    </div>
+                    <div>
+                        <span class="stats-label">Slope (m)</span>
+                        <span class="stats-value" id="slopeValue">-</span>
+                    </div>
+                    <div>
+                        <span class="stats-label">Y-Intercept (b)</span>
+                        <span class="stats-value" id="interceptValue">-</span>
+                    </div>
+                    <div>
+                        <span class="stats-label">Data Points</span>
+                        <span class="stats-value" id="pointCount">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="theory-section">
+            <h2>Understanding Correlation and Regression</h2>
+
+            <h3>What is Correlation?</h3>
+            <p>Correlation measures the strength and direction of a linear relationship between two variables. The correlation coefficient (r) ranges from -1 to +1. A value of +1 indicates perfect positive correlation (as one variable increases, the other increases proportionally), -1 indicates perfect negative correlation (as one increases, the other decreases proportionally), and 0 indicates no linear correlation.</p>
+
+            <div class="highlight">
+                <strong>Key Insight:</strong> Correlation does not imply causation. Two variables can be strongly correlated without one causing the other. They might both be influenced by a third variable, or the correlation might be coincidental.
+            </div>
+
+            <h3>Interpreting Correlation Values</h3>
+            <p><strong>Strong correlation:</strong> |r| > 0.7 - The points cluster tightly around a line</p>
+            <p><strong>Moderate correlation:</strong> 0.3 < |r| < 0.7 - There's a visible trend but with more scatter</p>
+            <p><strong>Weak correlation:</strong> |r| < 0.3 - Little or no linear pattern visible</p>
+
+            <div class="formula">
+                r = Σ[(xi - x̄)(yi - ȳ)] / √[Σ(xi - x̄)² × Σ(yi - ȳ)²]
+            </div>
+
+            <h3>Linear Regression</h3>
+            <p>Linear regression finds the best-fitting straight line through a set of points. This line, called the regression line or line of best fit, minimizes the sum of squared vertical distances (residuals) from the points to the line. The equation of this line is y = mx + b, where m is the slope and b is the y-intercept.</p>
+
+            <div class="formula">
+                y = mx + b
+                <br><br>
+                m = r × (sy / sx)
+                <br>
+                b = ȳ - m × x̄
+            </div>
+
+            <p>Where x̄ and ȳ are the means of x and y, and sx and sy are their standard deviations.</p>
+
+            <h3>Understanding the Regression Line</h3>
+            
+            <p><strong>Slope (m):</strong> The slope tells you how much y changes for each unit increase in x. A positive slope means the variables increase together, while a negative slope means one decreases as the other increases. For example, if the slope is 2.5, then for every 1-unit increase in x, y increases by 2.5 units on average.</p>
+
+            <p><strong>Y-Intercept (b):</strong> This is the predicted value of y when x equals zero. In many real-world contexts, this might not have a meaningful interpretation if x = 0 is outside the range of your data.</p>
+
+            <h3>Coefficient of Determination (R²)</h3>
+            <p>R² represents the proportion of variance in the dependent variable (y) that is predictable from the independent variable (x). It ranges from 0 to 1, where 1 means the regression line perfectly fits the data and 0 means the line doesn't explain any of the variability.</p>
+
+            <div class="formula">
+                R² = r²
+            </div>
+
+            <p>For example, if R² = 0.64, this means 64% of the variation in y can be explained by the linear relationship with x. The remaining 36% is due to other factors or random variation.</p>
+
+            <div class="highlight">
+                <strong>Important:</strong> R² tells you how well the line fits, but not whether the relationship is meaningful or whether linear regression is appropriate for your data. Always visualize your data first!
+            </div>
+
+            <h3>Residuals</h3>
+            <p>Residuals are the vertical distances between actual data points and the predicted values on the regression line. A residual is calculated as: residual = actual y - predicted y. When you enable "Show Residuals" in the simulation, you'll see these distances as vertical lines.</p>
+
+            <p>The regression line is positioned to minimize the sum of squared residuals. This method is called "least squares regression" because it finds the line where the squared residuals are as small as possible.</p>
+
+            <div class="highlight">
+                <strong>Checking Assumptions:</strong> For linear regression to be valid, residuals should be randomly scattered around zero with no clear pattern. If residuals show a pattern (like a curve), this suggests a linear model may not be appropriate for your data.
+            </div>
+
+            <h3>Limitations and Considerations</h3>
+
+            <p><strong>Non-linear relationships:</strong> Correlation and linear regression only measure linear relationships. Try the "Curved (Non-linear)" preset in the simulation - you'll see that even though there's a clear relationship, the correlation coefficient may be low because the relationship isn't linear.</p>
+
+            <p><strong>Outliers:</strong> A single extreme point can dramatically affect both the correlation coefficient and the regression line. Always check your data for outliers and consider their impact on your analysis.</p>
+
+            <p><strong>Extrapolation:</strong> Be cautious about using the regression line to make predictions outside the range of your data. The relationship you've observed might not hold beyond the values you've measured.</p>
+
+            <p><strong>Sample size:</strong> With very few data points, you might see high correlation just by chance. Generally, you need at least 10-20 points for reliable correlation and regression analysis.</p>
+
+            <h3>Using the Simulation</h3>
+            <p>Experiment with different patterns to build intuition about correlation and regression. Notice how adding a single outlier in a strong correlation can significantly change both r and the regression line. Try the "Curved" pattern to see why it's important to visualize your data - sometimes a high correlation coefficient doesn't tell the whole story about the relationship between variables.</p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('scatterCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let dataPoints = [];
+        let showLine = true;
+        let showResiduals = false;
+        const POINT_RADIUS = 5;
+        const CLICK_THRESHOLD = 15;
+
+        // Set canvas size with proper pixel ratio
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            
+            ctx.scale(dpr, dpr);
+            
+            drawScatterPlot();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Canvas click handler
+        canvas.addEventListener('click', (e) => {
+            if (document.getElementById('patternType').value !== 'custom') return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const margin = 50;
+            const plotWidth = rect.width - 2 * margin;
+            const plotHeight = rect.height - 2 * margin;
+
+            // Check if clicking near existing point to remove
+            for (let i = dataPoints.length - 1; i >= 0; i--) {
+                const pointX = margin + dataPoints[i].x * plotWidth;
+                const pointY = rect.height - margin - dataPoints[i].y * plotHeight;
+                const distance = Math.sqrt((x - pointX) ** 2 + (y - pointY) ** 2);
+                
+                if (distance < CLICK_THRESHOLD) {
+                    dataPoints.splice(i, 1);
+                    drawScatterPlot();
+                    return;
+                }
+            }
+
+            // Add new point (normalized to 0-1)
+            const dataX = Math.max(0, Math.min(1, (x - margin) / plotWidth));
+            const dataY = Math.max(0, Math.min(1, (rect.height - y - margin) / plotHeight));
+            
+            dataPoints.push({ x: dataX, y: dataY });
+            drawScatterPlot();
+        });
+
+        function calculateRegression() {
+            if (dataPoints.length < 2) {
+                return { slope: 0, intercept: 0, r: 0, r2: 0 };
+            }
+
+            const n = dataPoints.length;
+            
+            // Calculate means
+            const meanX = dataPoints.reduce((sum, p) => sum + p.x, 0) / n;
+            const meanY = dataPoints.reduce((sum, p) => sum + p.y, 0) / n;
+
+            // Calculate sums for correlation and regression
+            let sumXY = 0, sumX2 = 0, sumY2 = 0;
+            
+            dataPoints.forEach(p => {
+                const dx = p.x - meanX;
+                const dy = p.y - meanY;
+                sumXY += dx * dy;
+                sumX2 += dx * dx;
+                sumY2 += dy * dy;
+            });
+
+            // Calculate correlation
+            const r = sumXY / Math.sqrt(sumX2 * sumY2);
+
+            // Calculate regression line
+            const slope = sumXY / sumX2;
+            const intercept = meanY - slope * meanX;
+
+            return {
+                slope,
+                intercept,
+                r: isNaN(r) ? 0 : r,
+                r2: isNaN(r) ? 0 : r * r
+            };
+        }
+
+        function drawScatterPlot() {
+            const rect = canvas.getBoundingClientRect();
+            const width = rect.width;
+            const height = rect.height;
+            const margin = 50;
+            const plotWidth = width - 2 * margin;
+            const plotHeight = height - 2 * margin;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw axes
+            ctx.strokeStyle = '#e5e5e5';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(margin, margin);
+            ctx.lineTo(margin, height - margin);
+            ctx.lineTo(width - margin, height - margin);
+            ctx.stroke();
+
+            // Draw axis labels
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            
+            // X-axis
+            for (let i = 0; i <= 10; i++) {
+                const x = margin + (i / 10) * plotWidth;
+                ctx.fillText((i * 10).toString(), x, height - margin + 20);
+            }
+            
+            // Y-axis
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 10; i++) {
+                const y = height - margin - (i / 10) * plotHeight;
+                ctx.fillText((i * 10).toString(), margin - 10, y + 4);
+            }
+
+            // Axis titles
+            ctx.textAlign = 'center';
+            ctx.fillText('X Variable', width / 2, height - 10);
+            
+            ctx.save();
+            ctx.translate(15, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Y Variable', 0, 0);
+            ctx.restore();
+
+            if (dataPoints.length === 0) return;
+
+            const regression = calculateRegression();
+
+            // Draw regression line
+            if (showLine && dataPoints.length >= 2) {
+                ctx.strokeStyle = '#dc2626';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                const y1 = regression.slope * 0 + regression.intercept;
+                const y2 = regression.slope * 1 + regression.intercept;
+                
+                ctx.moveTo(margin, height - margin - y1 * plotHeight);
+                ctx.lineTo(margin + plotWidth, height - margin - y2 * plotHeight);
+                ctx.stroke();
+            }
+
+            // Draw residuals
+            if (showResiduals && dataPoints.length >= 2) {
+                ctx.strokeStyle = '#666';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([3, 3]);
+                
+                dataPoints.forEach(p => {
+                    const predictedY = regression.slope * p.x + regression.intercept;
+                    const x = margin + p.x * plotWidth;
+                    const actualY = height - margin - p.y * plotHeight;
+                    const predY = height - margin - predictedY * plotHeight;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(x, actualY);
+                    ctx.lineTo(x, predY);
+                    ctx.stroke();
+                });
+                
+                ctx.setLineDash([]);
+            }
+
+            // Draw data points
+            ctx.fillStyle = '#1a1a1a';
+            dataPoints.forEach(p => {
+                const x = margin + p.x * plotWidth;
+                const y = height - margin - p.y * plotHeight;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, POINT_RADIUS, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Update statistics
+            updateStats(regression);
+        }
+
+        function updateStats(regression) {
+            document.getElementById('correlationValue').textContent = 
+                dataPoints.length >= 2 ? regression.r.toFixed(3) : '-';
+            document.getElementById('r2Value').textContent = 
+                dataPoints.length >= 2 ? regression.r2.toFixed(3) : '-';
+            document.getElementById('slopeValue').textContent = 
+                dataPoints.length >= 2 ? regression.slope.toFixed(3) : '-';
+            document.getElementById('interceptValue').textContent = 
+                dataPoints.length >= 2 ? regression.intercept.toFixed(3) : '-';
+            document.getElementById('pointCount').textContent = dataPoints.length;
+        }
+
+        function changePattern() {
+            const pattern = document.getElementById('patternType').value;
+            dataPoints = [];
+
+            if (pattern === 'custom') {
+                drawScatterPlot();
+                return;
+            }
+
+            const n = 30;
+            
+            for (let i = 0; i < n; i++) {
+                let x = Math.random();
+                let y;
+
+                switch(pattern) {
+                    case 'positive':
+                        y = 0.8 * x + 0.1 + (Math.random() - 0.5) * 0.1;
+                        break;
+                    case 'negative':
+                        y = 0.9 - 0.8 * x + (Math.random() - 0.5) * 0.1;
+                        break;
+                    case 'weak':
+                        y = 0.3 * x + 0.3 + (Math.random() - 0.5) * 0.3;
+                        break;
+                    case 'none':
+                        y = Math.random();
+                        break;
+                    case 'curved':
+                        y = 4 * x * (1 - x) + (Math.random() - 0.5) * 0.1;
+                        break;
+                }
+
+                y = Math.max(0, Math.min(1, y));
+                dataPoints.push({ x, y });
+            }
+
+            drawScatterPlot();
+        }
+
+        function addRandomPoint() {
+            const x = Math.random();
+            const y = Math.random();
+            dataPoints.push({ x, y });
+            drawScatterPlot();
+        }
+
+        function clearData() {
+            dataPoints = [];
+            document.getElementById('patternType').value = 'custom';
+            drawScatterPlot();
+        }
+
+        function updateDisplay() {
+            showLine = document.getElementById('showLine').checked;
+            showResiduals = document.getElementById('showResiduals').checked;
+            drawScatterPlot();
+        }
+
+        // Initialize
+        changePattern();
+    </script>
+</body>
+</html>

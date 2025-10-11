@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptography Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            border-bottom: 1px solid #e5e5e5;
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2em;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1em;
+        }
+
+        .simulation-area {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .panel {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            padding: 30px;
+        }
+
+        h2 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        .instructions {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            margin-bottom: 30px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        select, input[type="text"], input[type="number"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e5e5e5;
+            background: white;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            padding: 0;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e5e5e5;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #1a1a1a;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #1a1a1a;
+            cursor: pointer;
+            border: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px 24px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        button.secondary {
+            background: #fafafa;
+            color: #1a1a1a;
+            border: 1px solid #e5e5e5;
+        }
+
+        button.secondary:hover {
+            background: #f0f0f0;
+        }
+
+        .output-box {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            word-break: break-all;
+            min-height: 100px;
+        }
+
+        .info-box {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 13px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #666;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #1a1a1a;
+            font-family: 'Courier New', monospace;
+        }
+
+        .visualization {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+
+        .char-mapping {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .char-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .char-box {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border: 1px solid #e5e5e5;
+            background: #fafafa;
+            font-weight: 600;
+        }
+
+        .arrow {
+            color: #666;
+        }
+
+        .theory-section {
+            border-top: 1px solid #e5e5e5;
+            padding-top: 40px;
+            margin-top: 40px;
+        }
+
+        .theory-section h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .theory-section h3 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+        }
+
+        .theory-section p {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .highlight {
+            background: #fafafa;
+            border-left: 3px solid #1a1a1a;
+            padding: 15px 20px;
+            margin: 20px 0;
+        }
+
+        .formula {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .slider-value {
+            display: inline-block;
+            min-width: 30px;
+            text-align: center;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 968px) {
+            .simulation-area {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Cryptography Simulator</h1>
+            <p class="subtitle">Explore classical and modern encryption techniques</p>
+        </header>
+
+        <div class="instructions">
+            <strong>Instructions:</strong> Select a cipher type, enter your message, and configure the encryption parameters. Watch how your message is transformed step-by-step using different encryption methods.
+        </div>
+
+        <div class="simulation-area">
+            <div class="panel">
+                <h2>Message & Output</h2>
+                
+                <div class="control-group">
+                    <label class="control-label">Your Message (Plaintext)</label>
+                    <textarea id="plaintext" placeholder="Enter your message here..." oninput="processMessage()">HELLO WORLD</textarea>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Encrypted Message (Ciphertext)</label>
+                    <div class="output-box" id="ciphertext">-</div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Decrypted Message</label>
+                    <div class="output-box" id="decrypted">-</div>
+                </div>
+
+                <div class="visualization" id="visualization">
+                    <div style="color: #666; font-size: 13px;">Character mappings will appear here...</div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Cipher Configuration</h2>
+                
+                <div class="control-group">
+                    <label class="control-label">Cipher Type</label>
+                    <select id="cipherType" onchange="changeCipher()">
+                        <option value="caesar">Caesar Cipher</option>
+                        <option value="vigenere">Vigenère Cipher</option>
+                        <option value="substitution">Simple Substitution</option>
+                        <option value="rsa">RSA (Simplified)</option>
+                    </select>
+                </div>
+
+                <div id="caesarControls" class="control-group">
+                    <label class="control-label">
+                        Shift Amount
+                        <span class="slider-value" id="shiftValue">3</span>
+                    </label>
+                    <input type="range" id="shift" min="1" max="25" value="3" oninput="updateShift()">
+                </div>
+
+                <div id="vigenereControls" class="control-group" style="display:none;">
+                    <label class="control-label">Keyword</label>
+                    <input type="text" id="keyword" value="KEY" oninput="processMessage()" placeholder="Enter keyword">
+                </div>
+
+                <div id="rsaControls" style="display:none;">
+                    <div class="control-group">
+                        <label class="control-label">Prime p</label>
+                        <input type="number" id="primeP" value="61" oninput="generateRSAKeys()">
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Prime q</label>
+                        <input type="number" id="primeQ" value="53" oninput="generateRSAKeys()">
+                    </div>
+                    <button onclick="generateRSAKeys()">Generate Keys</button>
+                </div>
+
+                <div class="info-box" id="infoBox">
+                    <div class="info-row">
+                        <span class="info-label">Cipher Type:</span>
+                        <span class="info-value">Caesar</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Key:</span>
+                        <span class="info-value">3</span>
+                    </div>
+                </div>
+
+                <button onclick="processMessage()">Encrypt</button>
+                <button class="secondary" onclick="copyToClipboard()">Copy Ciphertext</button>
+            </div>
+        </div>
+
+        <div class="theory-section">
+            <h2>Understanding Cryptography</h2>
+
+            <h3>What is Cryptography?</h3>
+            <p>Cryptography is the practice of securing communication by transforming readable information (plaintext) into an unreadable format (ciphertext). Only those with the correct key can decrypt the message back to plaintext. Cryptography has evolved from simple letter substitutions used by ancient Romans to complex mathematical algorithms that secure modern digital communications.</p>
+
+            <div class="highlight">
+                <strong>Key Concepts:</strong> Encryption transforms plaintext into ciphertext using a key. Decryption reverses this process. The security of a cipher depends on keeping the key secret, not the algorithm itself (Kerckhoffs's principle).
+            </div>
+
+            <h3>Caesar Cipher</h3>
+            <p>The Caesar cipher is one of the oldest and simplest encryption techniques. Named after Julius Caesar who used it for military communications, it works by shifting each letter in the plaintext by a fixed number of positions in the alphabet.</p>
+
+            <p>For example, with a shift of 3, A becomes D, B becomes E, C becomes F, and so on. When you reach the end of the alphabet, it wraps around: X becomes A, Y becomes B, Z becomes C.</p>
+
+            <div class="formula">
+                Encryption: E(x) = (x + shift) mod 26
+                <br>
+                Decryption: D(x) = (x - shift) mod 26
+            </div>
+
+            <p><strong>Strength:</strong> Very weak. There are only 25 possible shifts (shift of 26 would be the same as 0), so an attacker can simply try all of them in seconds. This is called a brute force attack.</p>
+
+            <p><strong>Use case:</strong> Educational purposes and puzzles. Never use for actual security.</p>
+
+            <h3>Vigenère Cipher</h3>
+            <p>The Vigenère cipher is a significant improvement over Caesar. Instead of using a single shift value, it uses a keyword where each letter represents a different shift amount. The keyword is repeated to match the length of the message.</p>
+
+            <p>For example, with keyword "KEY": The first letter uses shift K (10), the second uses shift E (4), the third uses shift Y (24), then it repeats. This means the same letter in plaintext can become different letters in ciphertext, making frequency analysis much harder.</p>
+
+            <div class="formula">
+                For each position i:
+                <br>
+                shift = (keyword[i mod keyword_length] - 'A')
+                <br>
+                E(x) = (x + shift) mod 26
+            </div>
+
+            <p><strong>Strength:</strong> Much stronger than Caesar, but still breakable with enough ciphertext. Cryptanalysts can determine the keyword length and then use frequency analysis on each position.</p>
+
+            <p><strong>Historical note:</strong> Once considered "le chiffre indéchiffrable" (the indecipherable cipher), it was eventually broken in the 19th century by Charles Babbage and Friedrich Kasiski.</p>
+
+            <h3>Simple Substitution Cipher</h3>
+            <p>In a simple substitution cipher, each letter in the plaintext is replaced by another letter according to a fixed mapping. Unlike Caesar, the substitution doesn't follow a simple shift pattern—each letter can map to any other letter.</p>
+
+            <p>For example: A→Q, B→W, C→E, D→R, etc. This creates 26! (approximately 4×10²⁶) possible keys, making brute force impractical.</p>
+
+            <p><strong>Strength:</strong> Despite the huge key space, substitution ciphers are vulnerable to frequency analysis. In English, 'E' is the most common letter, followed by 'T', 'A', etc. By analyzing letter frequencies in the ciphertext, cryptanalysts can deduce the substitution mapping.</p>
+
+            <p><strong>Breaking it:</strong> Look for common words like "THE", "AND", "TO". Single-letter words are usually "A" or "I". Double letters like "LL", "SS", "EE" are distinctive patterns that survive substitution.</p>
+
+            <h3>RSA (Rivest-Shamir-Adleman)</h3>
+            <p>RSA represents a revolutionary shift in cryptography. Unlike classical ciphers that use the same key for encryption and decryption (symmetric), RSA uses two different keys: a public key for encryption and a private key for decryption (asymmetric).</p>
+
+            <p><strong>How it works:</strong></p>
+            <p>1. Choose two large prime numbers p and q</p>
+            <p>2. Calculate n = p × q (this is your modulus)</p>
+            <p>3. Calculate φ(n) = (p-1) × (q-1)</p>
+            <p>4. Choose public exponent e (commonly 65537)</p>
+            <p>5. Calculate private exponent d where (d × e) mod φ(n) = 1</p>
+            <p>6. Public key is (e, n), private key is (d, n)</p>
+
+            <div class="formula">
+                Encryption: C = M^e mod n
+                <br>
+                Decryption: M = C^d mod n
+            </div>
+
+            <p><strong>Strength:</strong> Security relies on the difficulty of factoring large numbers. With 2048-bit keys, factoring n back into p and q would take thousands of years with current technology.</p>
+
+            <div class="highlight">
+                <strong>Real-world RSA:</strong> This simulator uses small primes for demonstration. Real RSA uses primes with hundreds of digits. The mathematical principles are identical, but the security comes from scale.
+            </div>
+
+            <p><strong>Applications:</strong> RSA is used everywhere in modern computing—HTTPS websites, email encryption, digital signatures, secure messaging apps, and cryptocurrency.</p>
+
+            <h3>Symmetric vs Asymmetric Encryption</h3>
+            
+            <p><strong>Symmetric (Caesar, Vigenère, Substitution):</strong> Same key encrypts and decrypts. Fast and efficient but requires secure key exchange. If someone intercepts the key, they can read all messages.</p>
+
+            <p><strong>Asymmetric (RSA):</strong> Public key encrypts, private key decrypts. Slower but solves the key distribution problem. You can publish your public key widely; only you have the private key to decrypt messages.</p>
+
+            <p><strong>Modern practice:</strong> Most systems use hybrid encryption—asymmetric cryptography (RSA) to securely exchange a symmetric key (AES), then symmetric encryption for the actual data. This combines the convenience of RSA with the speed of symmetric ciphers.</p>
+
+            <h3>Security Principles</h3>
+
+            <p><strong>Kerckhoffs's Principle:</strong> A cryptosystem should be secure even if everything about it, except the key, is public knowledge. Security through obscurity doesn't work—assume attackers know your algorithm.</p>
+
+            <p><strong>Key length matters:</strong> Longer keys exponentially increase security. A 128-bit key has 2¹²⁸ possible values. A 256-bit key has 2²⁵⁶ values—that's 2¹²⁸ times more!</p>
+
+            <p><strong>Perfect Forward Secrecy:</strong> Even if a key is compromised, past communications remain secure. Modern protocols generate new keys for each session.</p>
+
+            <div class="highlight">
+                <strong>Never roll your own crypto:</strong> These educational examples show how ciphers work, but real-world applications should use well-tested libraries (OpenSSL, libsodium) and algorithms (AES-256, ChaCha20, RSA-2048). Implementing cryptography correctly is extremely difficult, and small mistakes can completely break security.
+            </div>
+
+            <h3>Experimenting with the Simulator</h3>
+
+            <p><strong>Experiment 1 (Caesar):</strong> Encrypt "ATTACK AT DAWN" with shift 13. Notice this is ROT13—encrypting twice with shift 13 gives you back the original message!</p>
+
+            <p><strong>Experiment 2 (Vigenère):</strong> Try keyword "AAA" vs "ABC". With "AAA", it behaves like Caesar with shift 0. With "ABC", you get varying shifts. Notice how the same letter in plaintext becomes different letters in ciphertext.</p>
+
+            <p><strong>Experiment 3 (RSA):</strong> Try encrypting the same letter twice. You get the same ciphertext—this is deterministic encryption. Modern RSA adds random padding (OAEP) to prevent this.</p>
+
+            <p><strong>Experiment 4 (Frequency Analysis):</strong> Encrypt a long text with substitution cipher. Count letter frequencies in the ciphertext. The most common ciphertext letter likely represents 'E' in English.</p>
+        </div>
+    </div>
+
+    <script>
+        let currentCipher = 'caesar';
+        let shift = 3;
+        let keyword = 'KEY';
+        let rsaPublicKey = { e: 17, n: 3233 };
+        let rsaPrivateKey = { d: 2753, n: 3233 };
+
+        function changeCipher() {
+            currentCipher = document.getElementById('cipherType').value;
+            
+            document.getElementById('caesarControls').style.display = 'none';
+            document.getElementById('vigenereControls').style.display = 'none';
+            document.getElementById('rsaControls').style.display = 'none';
+
+            if (currentCipher === 'caesar') {
+                document.getElementById('caesarControls').style.display = 'block';
+            } else if (currentCipher === 'vigenere') {
+                document.getElementById('vigenereControls').style.display = 'block';
+            } else if (currentCipher === 'rsa') {
+                document.getElementById('rsaControls').style.display = 'block';
+            }
+
+            processMessage();
+        }
+
+        function updateShift() {
+            shift = parseInt(document.getElementById('shift').value);
+            document.getElementById('shiftValue').textContent = shift;
+            processMessage();
+        }
+
+        function caesarEncrypt(text, shift) {
+            return text.toUpperCase().split('').map(char => {
+                if (char >= 'A' && char <= 'Z') {
+                    return String.fromCharCode((char.charCodeAt(0) - 65 + shift) % 26 + 65);
+                }
+                return char;
+            }).join('');
+        }
+
+        function caesarDecrypt(text, shift) {
+            return caesarEncrypt(text, 26 - shift);
+        }
+
+        function vigenereEncrypt(text, keyword) {
+            keyword = keyword.toUpperCase().replace(/[^A-Z]/g, '');
+            if (keyword.length === 0) keyword = 'A';
+            
+            let result = '';
+            let keyIndex = 0;
+            
+            for (let char of text.toUpperCase()) {
+                if (char >= 'A' && char <= 'Z') {
+                    const shift = keyword.charCodeAt(keyIndex % keyword.length) - 65;
+                    result += String.fromCharCode((char.charCodeAt(0) - 65 + shift) % 26 + 65);
+                    keyIndex++;
+                } else {
+                    result += char;
+                }
+            }
+            return result;
+        }
+
+        function vigenereDecrypt(text, keyword) {
+            keyword = keyword.toUpperCase().replace(/[^A-Z]/g, '');
+            if (keyword.length === 0) keyword = 'A';
+            
+            let result = '';
+            let keyIndex = 0;
+            
+            for (let char of text) {
+                if (char >= 'A' && char <= 'Z') {
+                    const shift = keyword.charCodeAt(keyIndex % keyword.length) - 65;
+                    result += String.fromCharCode((char.charCodeAt(0) - 65 - shift + 26) % 26 + 65);
+                    keyIndex++;
+                } else {
+                    result += char;
+                }
+            }
+            return result;
+        }
+
+        function substitutionEncrypt(text) {
+            const map = {
+                'A': 'Q', 'B': 'W', 'C': 'E', 'D': 'R', 'E': 'T', 'F': 'Y', 'G': 'U',
+                'H': 'I', 'I': 'O', 'J': 'P', 'K': 'A', 'L': 'S', 'M': 'D', 'N': 'F',
+                'O': 'G', 'P': 'H', 'Q': 'J', 'R': 'K', 'S': 'L', 'T': 'Z', 'U': 'X',
+                'V': 'C', 'W': 'V', 'X': 'B', 'Y': 'N', 'Z': 'M'
+            };
+            
+            return text.toUpperCase().split('').map(char => {
+                return map[char] || char;
+            }).join('');
+        }
+
+        function substitutionDecrypt(text) {
+            const reverseMap = {
+                'Q': 'A', 'W': 'B', 'E': 'C', 'R': 'D', 'T': 'E', 'Y': 'F', 'U': 'G',
+                'I': 'H', 'O': 'I', 'P': 'J', 'A': 'K', 'S': 'L', 'D': 'M', 'F': 'N',
+                'G': 'O', 'H': 'P', 'J': 'Q', 'K': 'R', 'L': 'S', 'Z': 'T', 'X': 'U',
+                'C': 'V', 'V': 'W', 'B': 'X', 'N': 'Y', 'M': 'Z'
+            };
+            
+            return text.split('').map(char => {
+                return reverseMap[char] || char;
+            }).join('');
+        }
+
+        function modPow(base, exp, mod) {
+            let result = 1;
+            base = base % mod;
+            while (exp > 0) {
+                if (exp % 2 === 1) {
+                    result = (result * base) % mod;
+                }
+                exp = Math.floor(exp / 2);
+                base = (base * base) % mod;
+            }
+            return result;
+        }
+
+        function gcd(a, b) {
+            while (b !== 0) {
+                [a, b] = [b, a % b];
+            }
+            return a;
+        }
+
+        function modInverse(e, phi) {
+            let [old_r, r] = [phi, e];
+            let [old_s, s] = [0, 1];
+            
+            while (r !== 0) {
+                const quotient = Math.floor(old_r / r);
+                [old_r, r] = [r, old_r - quotient * r];
+                [old_s, s] = [s, old_s - quotient * s];
+            }
+            
+            return old_s < 0 ? old_s + phi : old_s;
+        }
+
+        function isPrime(n) {
+            if (n <= 1) return false;
+            if (n <= 3) return true;
+            if (n % 2 === 0 || n % 3 === 0) return false;
+            
+            for (let i = 5; i * i <= n; i += 6) {
+                if (n % i === 0 || n % (i + 2) === 0) return false;
+            }
+            return true;
+        }
+
+        function generateRSAKeys() {
+            const p = parseInt(document.getElementById('primeP').value);
+            const q = parseInt(document.getElementById('primeQ').value);
+            
+            if (!isPrime(p) || !isPrime(q)) {
+                alert('Both p and q must be prime numbers!');
+                return;
+            }
+            
+            if (p === q) {
+                alert('p and q must be different primes!');
+                return;
+            }
+            
+            const n = p * q;
+            const phi = (p - 1) * (q - 1);
+            
+            let e = 17;
+            while (gcd(e, phi) !== 1) {
+                e++;
+            }
+            
+            const d = modInverse(e, phi);
+            
+            rsaPublicKey = { e, n };
+            rsaPrivateKey = { d, n };
+            
+            processMessage();
+        }
+
+        function rsaEncrypt(text) {
+            const { e, n } = rsaPublicKey;
+            return text.toUpperCase().split('').map(char => {
+                if (char >= 'A' && char <= 'Z') {
+                    const m = char.charCodeAt(0) - 65;
+                    const c = modPow(m, e, n);
+                    return c.toString().padStart(4, '0');
+                }
+                return char === ' ' ? ' ' : char;
+            }).join(' ');
+        }
+
+        function rsaDecrypt(text) {
+            const { d, n } = rsaPrivateKey;
+            return text.split(' ').map(code => {
+                if (code.trim() === '') return ' ';
+                const c = parseInt(code);
+                if (isNaN(c)) return code;
+                const m = modPow(c, d, n);
+                return String.fromCharCode(m + 65);
+            }).join('');
+        }
+
+        function visualizeMapping(plaintext, ciphertext) {
+            const viz = document.getElementById('visualization');
+            
+            if (currentCipher === 'rsa') {
+                viz.innerHTML = '<div style="color: #666;">RSA encrypts each letter to a number. See the ciphertext above for numeric representation.</div>';
+                return;
+            }
+            
+            const plainChars = plaintext.toUpperCase().replace(/[^A-Z]/g, '').split('').slice(0, 10);
+            const cipherChars = ciphertext.replace(/[^A-Z0-9]/g, '').split('').slice(0, 10);
+            
+            let html = '<div class="char-mapping">';
+            for (let i = 0; i < Math.min(plainChars.length, 10); i++) {
+                if (plainChars[i] && cipherChars[i]) {
+                    html += `
+                        <div class="char-row">
+                            <span style="color: #666; width: 60px;">Char ${i + 1}:</span>
+                            <div class="char-box">${plainChars[i]}</div>
+                            <span class="arrow">→</span>
+                            <div class="char-box">${cipherChars[i]}</div>
+                        </div>
+                    `;
+                }
+            }
+            html += '</div>';
+            viz.innerHTML = html;
+        }
+
+        function processMessage() {
+            const plaintext = document.getElementById('plaintext').value || '';
+            let ciphertext = '';
+            let decrypted = '';
+            
+            if (currentCipher === 'caesar') {
+                ciphertext = caesarEncrypt(plaintext, shift);
+                decrypted = caesarDecrypt(ciphertext, shift);
+                updateInfo('Caesar Cipher', `Shift: ${shift}`);
+            } else if (currentCipher === 'vigenere') {
+                keyword = document.getElementById('keyword').value || 'KEY';
+                ciphertext = vigenereEncrypt(plaintext, keyword);
+                decrypted = vigenereDecrypt(ciphertext, keyword);
+                updateInfo('Vigenère Cipher', `Keyword: ${keyword.toUpperCase()}`);
+            } else if (currentCipher === 'substitution') {
+                ciphertext = substitutionEncrypt(plaintext);
+                decrypted = substitutionDecrypt(ciphertext);
+                updateInfo('Substitution Cipher', 'Fixed mapping');
+            } else if (currentCipher === 'rsa') {
+                ciphertext = rsaEncrypt(plaintext);
+                decrypted = rsaDecrypt(ciphertext);
+                updateInfo('RSA Cipher', `Public: (${rsaPublicKey.e}, ${rsaPublicKey.n}), Private: (${rsaPrivateKey.d}, ${rsaPrivateKey.n})`);
+            }
+            
+            document.getElementById('ciphertext').textContent = ciphertext || '-';
+            document.getElementById('decrypted').textContent = decrypted || '-';
+            
+            visualizeMapping(plaintext, ciphertext);
+        }
+
+        function updateInfo(type, key) {
+            const infoBox = document.getElementById('infoBox');
+            infoBox.innerHTML = `
+                <div class="info-row">
+                    <span class="info-label">Cipher Type:</span>
+                    <span class="info-value">${type}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Key:</span>
+                    <span class="info-value" style="word-break: break-all;">${key}</span>
+                </div>
+            `;
+        }
+
+        function copyToClipboard() {
+            const ciphertext = document.getElementById('ciphertext').textContent;
+            if (ciphertext && ciphertext !== '-') {
+                navigator.clipboard.writeText(ciphertext).then(() => {
+                    alert('Ciphertext copied to clipboard!');
+                }).catch(() => {
+                    alert('Failed to copy to clipboard');
+                });
+            }
+        }
+
+        // Initialize
+        changeCipher();
+        processMessage();
+    </script>
+</body>
+</html>

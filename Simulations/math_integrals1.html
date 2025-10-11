@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Double Integrals</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            border-bottom: 1px solid #e5e5e5;
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2em;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1em;
+        }
+
+        .simulation-area {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .panel {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            padding: 30px;
+        }
+
+        h2 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        #canvas3d {
+            width: 100%;
+            height: 500px;
+            background: white;
+            border: 1px solid #e5e5e5;
+            cursor: grab;
+        }
+
+        #canvas3d:active {
+            cursor: grabbing;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-value {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        select, input[type="range"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e5e5e5;
+            background: white;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        input[type="text"] {
+            font-family: 'Courier New', monospace;
+        }
+
+        input[type="range"] {
+            padding: 0;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e5e5e5;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #1a1a1a;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #1a1a1a;
+            cursor: pointer;
+            border: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px 24px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .instructions {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            margin-bottom: 30px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .stats-display {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .stats-display div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .stats-display div:last-child {
+            margin-bottom: 0;
+        }
+
+        .stats-label {
+            color: #666;
+        }
+
+        .stats-value {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .error-message {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 13px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .theory-section {
+            border-top: 1px solid #e5e5e5;
+            padding-top: 40px;
+            margin-top: 40px;
+        }
+
+        .theory-section h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .theory-section h3 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+        }
+
+        .theory-section p {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .highlight {
+            background: #fafafa;
+            border-left: 3px solid #1a1a1a;
+            padding: 15px 20px;
+            margin: 20px 0;
+        }
+
+        .formula {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 968px) {
+            .simulation-area {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Double Integrals</h1>
+            <p class="subtitle">Visualize volume under a surface through double integration</p>
+        </header>
+
+        <div class="instructions">
+            <strong>Instructions:</strong> Choose a preset function or enter your own custom equation. Watch how the volume under the surface is calculated using Riemann sums. Drag to rotate the view and adjust parameters to explore different surfaces.
+        </div>
+
+        <div class="simulation-area">
+            <div class="panel">
+                <h2>3D Visualization</h2>
+                <div id="canvas3d"></div>
+            </div>
+
+            <div class="panel">
+                <h2>Controls</h2>
+                <div class="controls">
+                    <div class="control-group">
+                        <label class="control-label">
+                            <span>Preset Functions</span>
+                        </label>
+                        <select id="functionType" onchange="changeFunction()">
+                            <option value="paraboloid">Paraboloid: x² + y²</option>
+                            <option value="saddle">Saddle: x² - y²</option>
+                            <option value="cone">Cone: √(x² + y²)</option>
+                            <option value="wave">Wave: sin(x)cos(y)</option>
+                            <option value="plane">Plane: x + y</option>
+                            <option value="custom">Custom Equation</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group" id="customEquationGroup" style="display: none;">
+                        <label class="control-label">
+                            <span>Custom Equation: z =</span>
+                        </label>
+                        <input type="text" id="customEquation" placeholder="x*x + y*y" value="x*x + y*y">
+                        <div class="help-text">Use: x, y, Math.sin(), Math.cos(), Math.sqrt(), Math.pow(), Math.abs()</div>
+                        <button onclick="applyCustomEquation()">Apply Equation</button>
+                        <div class="error-message" id="errorMessage"></div>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">
+                            <span>Resolution</span>
+                            <span class="control-value" id="resolutionValue">12</span>
+                        </label>
+                        <input type="range" id="resolution" min="8" max="20" value="12" oninput="updateResolution()">
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">
+                            <span>Region Size</span>
+                            <span class="control-value" id="sizeValue">2.0</span>
+                        </label>
+                        <input type="range" id="regionSize" min="10" max="30" value="20" oninput="updateSize()">
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">
+                            <span>Display Options</span>
+                        </label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="showSurface" checked onchange="updateDisplay()">
+                                <span>Show Surface</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="showVolume" checked onchange="updateDisplay()">
+                                <span>Show Volume Elements</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="showAxes" checked onchange="updateDisplay()">
+                                <span>Show Axes</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-display">
+                    <div>
+                        <span class="stats-label">Approximate Volume</span>
+                        <span class="stats-value" id="volumeValue">0.00</span>
+                    </div>
+                    <div>
+                        <span class="stats-label">Current Function</span>
+                        <span class="stats-value" id="currentFunction">z = x² + y²</span>
+                    </div>
+                    <div>
+                        <span class="stats-label">Subdivisions</span>
+                        <span class="stats-value" id="subdivValue">144</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="theory-section">
+            <h2>Understanding Double Integrals</h2>
+
+            <h3>What is a Double Integral?</h3>
+            <p>A double integral calculates the volume between a surface z = f(x, y) and the xy-plane over a region R. It extends the concept of single-variable integration to two dimensions, allowing us to compute volumes under curved surfaces.</p>
+
+            <div class="highlight">
+                <strong>Key Insight:</strong> Just as a single integral sums up infinitely many rectangles to find area under a curve, a double integral sums up infinitely many rectangular columns to find volume under a surface. Each column has a tiny base area (dx × dy) and height f(x, y).
+            </div>
+
+            <h3>The Mathematical Notation</h3>
+            <p>A double integral over a rectangular region is written as:</p>
+
+            <div class="formula">
+                ∬<sub>R</sub> f(x, y) dA = ∫<sub>a</sub><sup>b</sup> ∫<sub>c</sub><sup>d</sup> f(x, y) dy dx
+                <br><br>
+                Volume ≈ ΣΣ f(x<sub>i</sub>, y<sub>j</sub>) Δx Δy
+            </div>
+
+            <p>The double integral is computed as two successive single integrals. We integrate with respect to one variable while treating the other as constant, then integrate the result with respect to the second variable.</p>
+
+            <h3>Riemann Sum Approximation</h3>
+            
+            <p><strong>Step 1: Divide the Region</strong></p>
+            <p>The xy-plane region is divided into a grid of small rectangles. Each rectangle has area ΔA = Δx × Δy. The resolution slider controls how fine this division is—higher resolution means smaller rectangles and better approximation.</p>
+
+            <p><strong>Step 2: Evaluate Heights</strong></p>
+            <p>At the center of each small rectangle at position (x<sub>i</sub>, y<sub>j</sub>), we evaluate the function f(x, y) to determine the height of the surface above that point.</p>
+
+            <p><strong>Step 3: Sum the Volumes</strong></p>
+            <p>Each small rectangle contributes a volume of f(x<sub>i</sub>, y<sub>j</sub>) × Δx × Δy. We sum all these contributions to get the total approximate volume. As Δx and Δy approach zero (infinite resolution), this approximation becomes exact.</p>
+
+            <h3>Understanding Different Surfaces</h3>
+
+            <p><strong>Paraboloid (z = x² + y²):</strong> This classic bowl-shaped surface opens upward. The volume grows rapidly as you move away from the origin. The surface is rotationally symmetric around the z-axis.</p>
+
+            <p><strong>Saddle (z = x² - y²):</strong> This hyperbolic paraboloid curves upward in the x-direction but downward in the y-direction. Parts below the xy-plane contribute negative volume, which the integral subtracts from the total.</p>
+
+            <p><strong>Cone (z = √(x² + y²)):</strong> A circular cone with vertex at the origin. Notice how integration handles the sharp point at the vertex—the rectangular approximation smooths it out, but becomes more accurate with higher resolution.</p>
+
+            <p><strong>Wave (z = sin(x)cos(y)):</strong> This oscillating surface demonstrates how integrals handle functions with both positive and negative regions. Positive regions add volume, negative regions subtract it.</p>
+
+            <h3>Custom Equations</h3>
+            <p>The custom equation feature lets you explore any function you can imagine. Use JavaScript mathematical expressions with variables x and y. For example:</p>
+
+            <div class="formula">
+                Simple: x*x + y*y
+                <br>
+                Trigonometric: Math.sin(x) * Math.cos(y)
+                <br>
+                Complex: Math.exp(-x*x - y*y)
+                <br>
+                Mixed: x*y + Math.sin(x*y)
+            </div>
+
+            <div class="highlight">
+                <strong>Tip:</strong> Start with simple expressions and gradually make them more complex. If your equation produces an error, check the syntax—remember to use * for multiplication and Math.sqrt() for square roots.
+            </div>
+
+            <h3>Physical Applications</h3>
+
+            <p>Double integrals appear throughout physics and engineering. If f(x, y) represents height or depth, the integral gives volume. If it represents mass density, the integral gives total mass. If it represents charge density, you get total charge.</p>
+
+            <p>For example, imagine a thin metal plate where ρ(x, y) is the density at each point. The total mass would be ∬ ρ(x, y) dA. Or consider rainfall over a region—if r(x, y) is rainfall rate, then ∬ r(x, y) dA gives total rainfall volume.</p>
+
+            <h3>Order of Integration</h3>
+            <p>For rectangular regions, we can integrate in either order: first with respect to x then y, or first with respect to y then x. Both orders give the same result (Fubini's Theorem), but one might be easier to compute by hand.</p>
+
+            <div class="formula">
+                ∫∫ f(x, y) dx dy = ∫∫ f(x, y) dy dx
+            </div>
+
+            <p>The visualization always uses the same order, but mathematically both are equivalent for continuous functions over rectangular regions.</p>
+
+            <h3>Experimenting with the Simulation</h3>
+            
+            <p><strong>Experiment 1: Resolution Effect</strong></p>
+            <p>Set the resolution to its minimum (8) and observe the blocky approximation. Gradually increase to maximum (20) and watch the volume estimate converge to a stable value. This demonstrates the limiting process in integration.</p>
+
+            <p><strong>Experiment 2: Negative Volumes</strong></p>
+            <p>Select the saddle function. Notice the red columns (negative contribution) and green columns (positive contribution). The total volume is the net result—positive minus negative.</p>
+
+            <p><strong>Experiment 3: Custom Surfaces</strong></p>
+            <p>Try these custom equations to explore different shapes:
+            <br>• Sphere cap: Math.sqrt(4 - x*x - y*y) (may give NaN outside radius)
+            <br>• Gaussian bell: Math.exp(-x*x - y*y)
+            <br>• Ripples: Math.cos(x*x + y*y)
+            <br>• Twisted surface: x*y</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        let scene, camera, renderer, surfaceMesh, volumeGroup, axesGroup;
+        let functionType = 'paraboloid';
+        let customFunctionStr = 'x*x + y*y';
+        let resolution = 12;
+        let regionSize = 2.0;
+        let showSurface = true;
+        let showVolume = true;
+        let showAxes = true;
+
+        function initScene() {
+            const container = document.getElementById('canvas3d');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xffffff);
+
+            camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+            camera.position.set(7, 5, 7);
+            camera.lookAt(0, 1, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.5);
+            dirLight1.position.set(5, 10, 5);
+            scene.add(dirLight1);
+
+            const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.3);
+            dirLight2.position.set(-5, 5, -5);
+            scene.add(dirLight2);
+
+            setupControls();
+            createAxes();
+            updateVisualization();
+            animate();
+        }
+
+        function setupControls() {
+            let isDragging = false;
+            let previousMouse = { x: 0, y: 0 };
+
+            renderer.domElement.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                previousMouse = { x: e.clientX, y: e.clientY };
+            });
+
+            renderer.domElement.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+
+                const deltaX = e.clientX - previousMouse.x;
+                const deltaY = e.clientY - previousMouse.y;
+
+                const radius = Math.sqrt(camera.position.x ** 2 + camera.position.z ** 2);
+                const angle = Math.atan2(camera.position.x, camera.position.z);
+                
+                const newAngle = angle - deltaX * 0.01;
+                camera.position.x = radius * Math.sin(newAngle);
+                camera.position.z = radius * Math.cos(newAngle);
+                
+                camera.position.y = Math.max(1, Math.min(15, camera.position.y - deltaY * 0.05));
+                camera.lookAt(0, 1, 0);
+
+                previousMouse = { x: e.clientX, y: e.clientY };
+            });
+
+            renderer.domElement.addEventListener('mouseup', () => isDragging = false);
+            renderer.domElement.addEventListener('mouseleave', () => isDragging = false);
+
+            renderer.domElement.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const factor = e.deltaY > 0 ? 1.1 : 0.9;
+                camera.position.multiplyScalar(factor);
+            });
+
+            window.addEventListener('resize', () => {
+                const container = document.getElementById('canvas3d');
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        }
+
+        function createAxes() {
+            if (axesGroup) scene.remove(axesGroup);
+            axesGroup = new THREE.Group();
+
+            const axisLength = regionSize + 0.5;
+            
+            const xMat = new THREE.LineBasicMaterial({ color: 0xdc2626, linewidth: 2 });
+            const xGeom = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(axisLength, 0, 0)
+            ]);
+            axesGroup.add(new THREE.Line(xGeom, xMat));
+
+            const yMat = new THREE.LineBasicMaterial({ color: 0x16a34a, linewidth: 2 });
+            const yGeom = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(0, axisLength, 0)
+            ]);
+            axesGroup.add(new THREE.Line(yGeom, yMat));
+
+            const zMat = new THREE.LineBasicMaterial({ color: 0x2563eb, linewidth: 2 });
+            const zGeom = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(0, 0, axisLength)
+            ]);
+            axesGroup.add(new THREE.Line(zGeom, zMat));
+
+            const gridSize = regionSize * 2;
+            const gridDiv = 10;
+            const gridGeom = new THREE.BufferGeometry();
+            const gridPositions = [];
+
+            for (let i = 0; i <= gridDiv; i++) {
+                const pos = (i / gridDiv - 0.5) * gridSize;
+                gridPositions.push(-gridSize/2, 0, pos, gridSize/2, 0, pos);
+                gridPositions.push(pos, 0, -gridSize/2, pos, 0, gridSize/2);
+            }
+
+            gridGeom.setAttribute('position', new THREE.Float32BufferAttribute(gridPositions, 3));
+            const gridMat = new THREE.LineBasicMaterial({ color: 0xe5e5e5 });
+            axesGroup.add(new THREE.LineSegments(gridGeom, gridMat));
+
+            axesGroup.visible = showAxes;
+            scene.add(axesGroup);
+        }
+
+        function evaluateFunction(x, y) {
+            try {
+                if (functionType === 'custom') {
+                    const result = eval(customFunctionStr);
+                    return isNaN(result) || !isFinite(result) ? 0 : result;
+                }
+
+                switch(functionType) {
+                    case 'paraboloid':
+                        return (x * x + y * y) * 0.3;
+                    case 'saddle':
+                        return (x * x - y * y) * 0.3;
+                    case 'cone':
+                        return Math.sqrt(x * x + y * y) * 0.5;
+                    case 'wave':
+                        return (Math.sin(x * 1.5) * Math.cos(y * 1.5) + 1) * 0.5;
+                    case 'plane':
+                        return (x + y) * 0.25 + 0.5;
+                }
+            } catch (e) {
+                return 0;
+            }
+            return 0;
+        }
+
+        function updateVisualization() {
+            if (surfaceMesh) {
+                scene.remove(surfaceMesh);
+                surfaceMesh.geometry.dispose();
+                surfaceMesh.material.dispose();
+            }
+            if (volumeGroup) {
+                volumeGroup.children.forEach(child => {
+                    child.geometry.dispose();
+                    child.material.dispose();
+                });
+                scene.remove(volumeGroup);
+            }
+
+            createDoubleSurface();
+            calculateVolume();
+        }
+
+        function createDoubleSurface() {
+            const positions = [];
+            const indices = [];
+            const colors = [];
+
+            for (let i = 0; i <= resolution; i++) {
+                for (let j = 0; j <= resolution; j++) {
+                    const x = (i / resolution - 0.5) * regionSize * 2;
+                    const z = (j / resolution - 0.5) * regionSize * 2;
+                    const y = evaluateFunction(x, z);
+
+                    positions.push(x, y, z);
+
+                    const colorVal = Math.max(0, Math.min(1, (y + 1) / 3));
+                    colors.push(0.2 + colorVal * 0.5, 0.4 + colorVal * 0.3, 0.8);
+                }
+            }
+
+            for (let i = 0; i < resolution; i++) {
+                for (let j = 0; j < resolution; j++) {
+                    const a = i * (resolution + 1) + j;
+                    const b = a + resolution + 1;
+                    const c = a + 1;
+                    const d = b + 1;
+
+                    indices.push(a, b, c);
+                    indices.push(b, d, c);
+                }
+            }
+
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+            geometry.setIndex(indices);
+            geometry.computeVertexNormals();
+
+            const material = new THREE.MeshPhongMaterial({
+                vertexColors: true,
+                side: THREE.DoubleSide,
+                shininess: 60,
+                transparent: true,
+                opacity: 0.85
+            });
+
+            surfaceMesh = new THREE.Mesh(geometry, material);
+            surfaceMesh.visible = showSurface;
+            scene.add(surfaceMesh);
+
+            if (showVolume) {
+                volumeGroup = new THREE.Group();
+                const step = regionSize * 2 / resolution;
+                const boxGeom = new THREE.BoxGeometry(step * 0.85, 1, step * 0.85);
+                
+                for (let i = 0; i < resolution; i++) {
+                    for (let j = 0; j < resolution; j++) {
+                        const x = (i / resolution - 0.5) * regionSize * 2 + step / 2;
+                        const z = (j / resolution - 0.5) * regionSize * 2 + step / 2;
+                        const y = evaluateFunction(x, z);
+
+                        if (Math.abs(y) > 0.001) {
+                            const boxMat = new THREE.MeshPhongMaterial({
+                                color: y > 0 ? 0x10b981 : 0xef4444,
+                                transparent: true,
+                                opacity: 0.4
+                            });
+                            
+                            const mesh = new THREE.Mesh(boxGeom.clone(), boxMat);
+                            mesh.scale.y = Math.abs(y);
+                            mesh.position.set(x, y / 2, z);
+                            volumeGroup.add(mesh);
+                        }
+                    }
+                }
+                
+                scene.add(volumeGroup);
+            }
+        }
+
+        function calculateVolume() {
+            let volume = 0;
+            const step = regionSize * 2 / resolution;
+
+            for (let i = 0; i < resolution; i++) {
+                for (let j = 0; j < resolution; j++) {
+                    const x = (i / resolution - 0.5) * regionSize * 2 + step / 2;
+                    const z = (j / resolution - 0.5) * regionSize * 2 + step / 2;
+                    const y = evaluateFunction(x, z);
+                    volume += y * step * step;
+                }
+            }
+
+            document.getElementById('volumeValue').textContent = Math.abs(volume).toFixed(2);
+            document.getElementById('subdivValue').textContent = resolution * resolution;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+
+        function changeFunction() {
+            functionType = document.getElementById('functionType').value;
+            const customGroup = document.getElementById('customEquationGroup');
+            const errorMsg = document.getElementById('errorMessage');
+            
+            if (functionType === 'custom') {
+                customGroup.style.display = 'block';
+                document.getElementById('currentFunction').textContent = 'z = ' + customFunctionStr;
+            } else {
+                customGroup.style.display = 'none';
+                errorMsg.style.display = 'none';
+                
+                const funcLabels = {
+                    'paraboloid': 'z = x² + y²',
+                    'saddle': 'z = x² - y²',
+                    'cone': 'z = √(x² + y²)',
+                    'wave': 'z = sin(x)cos(y)',
+                    'plane': 'z = x + y'
+                };
+                document.getElementById('currentFunction').textContent = funcLabels[functionType];
+            }
+            
+            updateVisualization();
+        }
+
+        function applyCustomEquation() {
+            const input = document.getElementById('customEquation').value.trim();
+            const errorMsg = document.getElementById('errorMessage');
+            
+            if (!input) {
+                errorMsg.textContent = 'Please enter an equation.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // Test the equation
+            try {
+                const x = 0, y = 0;
+                const testResult = eval(input);
+                
+                if (isNaN(testResult) && input.indexOf('sqrt') === -1 && input.indexOf('NaN') === -1) {
+                    throw new Error('Invalid expression');
+                }
+                
+                customFunctionStr = input;
+                errorMsg.style.display = 'none';
+                document.getElementById('currentFunction').textContent = 'z = ' + input;
+                updateVisualization();
+            } catch (e) {
+                errorMsg.textContent = 'Invalid equation. Check your syntax.';
+                errorMsg.style.display = 'block';
+            }
+        }
+
+        function updateResolution() {
+            resolution = parseInt(document.getElementById('resolution').value);
+            document.getElementById('resolutionValue').textContent = resolution;
+            updateVisualization();
+        }
+
+        function updateSize() {
+            regionSize = parseInt(document.getElementById('regionSize').value) / 10;
+            document.getElementById('sizeValue').textContent = regionSize.toFixed(1);
+            createAxes();
+            updateVisualization();
+        }
+
+        function updateDisplay() {
+            showSurface = document.getElementById('showSurface').checked;
+            showVolume = document.getElementById('showVolume').checked;
+            showAxes = document.getElementById('showAxes').checked;
+
+            if (surfaceMesh) surfaceMesh.visible = showSurface;
+            if (volumeGroup) volumeGroup.visible = showVolume;
+            if (axesGroup) axesGroup.visible = showAxes;
+        }
+
+        initScene();
+    </script>
+</body>
+</html>
